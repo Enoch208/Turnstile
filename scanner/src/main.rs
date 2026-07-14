@@ -1,3 +1,4 @@
+mod alerts;
 mod routes;
 
 use std::net::SocketAddr;
@@ -23,6 +24,10 @@ async fn main() -> Result<()> {
 
     let backend = ScanBackend::from_env();
     tracing::info!(indexer = backend.indexer_uri(), "scan backend ready");
+
+    let ntfy_base =
+        std::env::var("NTFY_BASE_URL").unwrap_or_else(|_| "https://ntfy.sh".to_string());
+    alerts::spawn(backend.indexer_uri().to_string(), ntfy_base);
 
     let state = Arc::new(AppState { backend });
 

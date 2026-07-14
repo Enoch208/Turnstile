@@ -13,6 +13,7 @@ zingo = [
     "dep:zip32",
     "dep:http",
     "dep:tempfile",
+    "dep:reqwest",
 ]
 
 [dependencies]
@@ -26,3 +27,6 @@ zingo-netutils = { git = "https://github.com/zingolabs/zingolib.git", rev = "6f5
 zip32 = { version = "0.2", optional = true }
 http = { version = "1", optional = true }
 tempfile = { version = "3", optional = true }
+reqwest = { version = "0.12", default-features = false, features = [
+    "rustls-tls",
+], optional = true }
