@@ -33,8 +33,8 @@ export function Footer() {
 
         <div className="flex flex-col gap-4 lg:items-end lg:text-right">
           <p className="text-base font-light leading-snug tracking-tight text-muted md:text-2xl">
-            The Orchard pool seals at block {formatHeight(IRONWOOD_ACTIVATION_HEIGHT)}. Turnstile
-            never sees a spending key, and stores nothing.
+            Orchard stops taking deposits at block {formatHeight(IRONWOOD_ACTIVATION_HEIGHT)}.
+            Turnstile never sees a spending key, and stores nothing.
           </p>
           <p className="font-mono text-4xl font-medium tracking-tighter text-foreground md:text-5xl">
             {formatHeight(IRONWOOD_ACTIVATION_HEIGHT)}

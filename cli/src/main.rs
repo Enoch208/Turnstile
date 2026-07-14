@@ -66,20 +66,10 @@ fn print_verdict(result: &ScanResult) {
     println!("  ORCHARD       {}", format_pool(balances.orchard));
     println!();
     println!("  {}", result.verdict.headline());
+    println!("  {}", result.verdict.detail());
 
-    match result.verdict {
-        Verdict::Exposed => println!(
-            "  Move these funds before block {IRONWOOD_ACTIVATION_HEIGHT}, or they leave only \
-             through the turnstile."
-        ),
-        Verdict::Undetermined => println!(
-            "  This key carries no Orchard viewing key, so Turnstile cannot rule on your \
-             exposure. Re-run with a UFVK that includes an Orchard viewing key."
-        ),
-        Verdict::Partial => {
-            println!("  Nothing is at risk, but read what changes at the activation height.")
-        }
-        Verdict::Ready => println!("  No action needed."),
+    if result.verdict == Verdict::Exposed {
+        println!("  Activation is at block {IRONWOOD_ACTIVATION_HEIGHT}.");
     }
 
     println!("  Scanned to block {}.", result.scanned_to_height);

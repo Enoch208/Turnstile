@@ -32,9 +32,9 @@ export function Hero({ height, blocksRemaining, daysRemaining }: HeroProps) {
         </h1>
 
         <p className="mb-10 max-w-md text-sm font-medium leading-relaxed tracking-wide text-muted">
-          Audit your ZEC exposure before block {formatHeight(IRONWOOD_ACTIVATION_HEIGHT)}. Paste a
-          viewing key to scan your wallet&apos;s pool balances — securely, instantly, and never
-          with a spending key.
+          Find out where your ZEC sits before block{" "}
+          {formatHeight(IRONWOOD_ACTIVATION_HEIGHT)}. Paste a viewing key to read your
+          wallet&apos;s pool balances — never a spending key, never stored.
         </p>
 
         <div className="mb-16 flex flex-col gap-3 sm:flex-row lg:mb-20">

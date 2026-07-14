@@ -17,10 +17,10 @@ export function CountdownSection({ secondsRemaining, blocksRemaining }: Countdow
         <SectionHeading
           title={
             <>
-              The Orchard pool <Accented>seals itself</Accented>
+              The Orchard pool <Accented>stops taking deposits</Accented>
             </>
           }
-          body="No new deposits. No internal transfers. Funds leave only through the turnstile. This is the deadline every ZEC holder is about to ask you about."
+          body="Nothing new enters Orchard after the activation height. Value already inside is not frozen and cannot be lost — it leaves only by being spent out, through the turnstile."
         />
 
         <div className="cursor-default text-left md:text-right">
