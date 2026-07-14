@@ -3661,6 +3661,7 @@ dependencies = [
  "tempfile",
  "thiserror 2.0.18",
  "tracing",
+ "zingo-netutils",
  "zingolib",
  "zip32",
 ]

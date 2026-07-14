@@ -7,15 +7,21 @@ use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use axum::routing::{get, post};
 use serde::Serialize;
-use turnstile_core::{ScanError, ScanRequest, ScanResult};
+use turnstile_core::{ChainStatus, ScanError, ScanRequest, ScanResult, chain_status};
 
 use crate::AppState;
 
 pub fn router(state: Arc<AppState>) -> Router {
     Router::new()
         .route("/health", get(health))
+        .route("/status", get(status))
         .route("/scan", post(scan))
         .with_state(state)
+}
+
+async fn status(State(state): State<Arc<AppState>>) -> Result<Json<ChainStatus>, ScanFailure> {
+    let status = chain_status(state.backend.indexer_uri()).await?;
+    Ok(Json(status))
 }
 
 #[derive(Serialize)]
