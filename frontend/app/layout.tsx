@@ -14,6 +14,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.SITE_URL ?? "http://localhost:3000"),
   title: "Turnstile — Is your ZEC ready for Ironwood?",
   description:
     "Audit your ZEC exposure before block 3,428,143. Paste a viewing key to scan your wallet's pool balances. No spending keys, ever.",
