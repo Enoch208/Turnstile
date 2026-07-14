@@ -119,6 +119,17 @@ TURNSTILE:SUB:<your-topic>
 The watcher reads the encrypted memo from the chain, registers the topic, and pushes you a
 confirmation. You are alerted 48 hours before, 1 hour before, and at activation.
 
+Proven end to end on mainnet — a real shielded memo, decrypted from the chain, pushed:
+
+```
+tx ff53f470… carries memo TURNSTILE:SUB:turnstile-demo-7f3a
+
+INFO turnstile_scanner::alerts: new subscription topic=turnstile-demo-7f3a height=3412465
+    → ntfy: "Turnstile — you are subscribed"
+```
+
+No email, no account, no identifier of any kind changed hands. The chain was the signup form.
+
 The watcher is given a **viewing key, not a spending key** — reading memos is all it needs. The
 server therefore *cannot spend the dust it is sent*, by construction rather than by policy.
 
