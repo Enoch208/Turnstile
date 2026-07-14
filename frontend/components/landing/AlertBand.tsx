@@ -27,7 +27,7 @@ export function AlertBand() {
               body="Send any amount over 0.0001 ZEC to the Turnstile address with a memo naming your alert topic. No email. No account. No PII, ever."
             />
 
-            <ButtonLink href="/guides#alerts">
+            <ButtonLink href="/alerts">
               Subscribe with a memo
               <ButtonGlyph>
                 <Icon
