@@ -1,0 +1,33 @@
+import type { Metadata } from "next";
+import { Inter, JetBrains_Mono } from "next/font/google";
+
+import "./globals.css";
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "Turnstile — Is your ZEC ready for Ironwood?",
+  description:
+    "Audit your ZEC exposure before block 3,428,143. Paste a viewing key to scan your wallet's pool balances. No spending keys, ever.",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <html
+      lang="en"
+      className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
+    >
+      <body className="flex min-h-full flex-col">{children}</body>
+    </html>
+  );
+}
