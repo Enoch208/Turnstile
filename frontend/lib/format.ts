@@ -12,6 +12,11 @@ export function formatZec(zatoshi: number) {
     .replace(/\.$/, "");
 }
 
+export function formatPool(zatoshi: number | null) {
+  if (zatoshi === null) return "not visible to this key";
+  return `${formatZec(zatoshi)} ZEC`;
+}
+
 export function formatHeight(height: number) {
   return height.toLocaleString("en-US");
 }

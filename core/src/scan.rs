@@ -43,33 +43,28 @@ pub enum ScanError {
     InvalidViewingKey,
     #[error("a spending key was supplied; Turnstile never accepts spending keys")]
     SpendingKeySupplied,
-    #[error("birthday height {0} is above the current chain tip")]
+    #[error("birthday height {0} is not a valid block height")]
     BirthdayAboveTip(u64),
     #[error("could not reach the Zcash network")]
     NetworkUnavailable,
-    #[error("scan exceeded the configured depth cap")]
-    DepthCapExceeded,
-    #[error("the zingolib scan backend is not configured on this server")]
+    #[error("could not create the ephemeral wallet directory")]
+    EphemeralStorageUnavailable,
+    #[error("the zingolib scan backend is not compiled into this build")]
     BackendUnavailable,
 }
 
-pub trait WalletScanner {
-    fn scan(&self, request: &ScanRequest) -> Result<ScanResult, ScanError>;
-}
-
-pub fn validate(request: &ScanRequest, chain_tip: u64) -> Result<(), ScanError> {
+pub fn validate(request: &ScanRequest) -> Result<(), ScanError> {
     let key = request.ufvk.trim();
 
-    if key.starts_with("secret-extended-key") || key.starts_with("zxviews") {
+    if key.starts_with("secret-extended-key")
+        || key.starts_with("zxviews")
+        || key.starts_with("uskmain")
+    {
         return Err(ScanError::SpendingKeySupplied);
     }
 
-    if !key.starts_with("uview") && !key.starts_with("uviewtest") {
+    if !key.starts_with("uview") {
         return Err(ScanError::InvalidViewingKey);
-    }
-
-    if request.birthday > chain_tip {
-        return Err(ScanError::BirthdayAboveTip(request.birthday));
     }
 
     Ok(())
@@ -79,52 +74,65 @@ pub fn validate(request: &ScanRequest, chain_tip: u64) -> Result<(), ScanError> 
 mod tests {
     use super::*;
 
-    fn request(ufvk: &str, birthday: u64) -> ScanRequest {
+    fn request(ufvk: &str) -> ScanRequest {
         ScanRequest {
             ufvk: ufvk.to_string(),
-            birthday,
+            birthday: 3_000_000,
         }
     }
 
     #[test]
     fn a_unified_viewing_key_validates() {
-        assert!(validate(&request("uview1abc", 3_000_000), 3_410_000).is_ok());
-    }
-
-    #[test]
-    fn a_spending_key_is_rejected_by_name() {
-        let err = validate(&request("secret-extended-key-main1abc", 1), 3_410_000).unwrap_err();
-        assert!(matches!(err, ScanError::SpendingKeySupplied));
+        assert!(validate(&request("uview1abc")).is_ok());
     }
 
     #[test]
     fn a_sapling_extended_spending_key_is_rejected() {
-        let err = validate(&request("zxviews1abc", 1), 3_410_000).unwrap_err();
+        let err = validate(&request("secret-extended-key-main1abc")).unwrap_err();
+        assert!(matches!(err, ScanError::SpendingKeySupplied));
+    }
+
+    #[test]
+    fn a_sapling_extended_viewing_key_is_rejected_as_a_spending_key_shape() {
+        let err = validate(&request("zxviews1abc")).unwrap_err();
+        assert!(matches!(err, ScanError::SpendingKeySupplied));
+    }
+
+    #[test]
+    fn a_unified_spending_key_is_rejected() {
+        let err = validate(&request("uskmain1abc")).unwrap_err();
         assert!(matches!(err, ScanError::SpendingKeySupplied));
     }
 
     #[test]
     fn garbage_is_rejected() {
-        let err = validate(&request("not-a-key", 1), 3_410_000).unwrap_err();
+        let err = validate(&request("not-a-key")).unwrap_err();
         assert!(matches!(err, ScanError::InvalidViewingKey));
     }
 
     #[test]
-    fn a_birthday_past_the_tip_is_rejected() {
-        let err = validate(&request("uview1abc", 9_999_999), 3_410_000).unwrap_err();
-        assert!(matches!(err, ScanError::BirthdayAboveTip(9_999_999)));
-    }
-
-    #[test]
     fn debug_never_prints_the_viewing_key() {
-        let printed = format!("{:?}", request("uview1supersecret", 3_000_000));
+        let printed = format!("{:?}", request("uview1supersecret"));
         assert!(!printed.contains("supersecret"));
         assert!(printed.contains("<redacted>"));
     }
 
     #[test]
+    fn an_error_never_echoes_the_viewing_key_back() {
+        let err = validate(&request("zxviews1supersecret")).unwrap_err();
+        let rendered = format!("{err}");
+        assert!(!rendered.contains("supersecret"));
+    }
+
+    #[test]
     fn result_derives_its_verdict_from_the_balances() {
-        let result = ScanResult::new(PoolBalances::new(0, 0, 320_000_000), 3_410_000);
+        let result = ScanResult::new(PoolBalances::fully_visible(0, 0, 320_000_000), 3_410_000);
         assert_eq!(result.verdict, Verdict::Exposed);
+    }
+
+    #[test]
+    fn a_result_from_an_orchard_blind_key_is_undetermined() {
+        let result = ScanResult::new(PoolBalances::new(Some(0), Some(0), None), 3_410_000);
+        assert_eq!(result.verdict, Verdict::Undetermined);
     }
 }

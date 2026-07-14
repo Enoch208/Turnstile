@@ -5,7 +5,7 @@ edition.workspace = true
 license.workspace = true
 
 [dependencies]
-turnstile-core = { workspace = true }
+turnstile-core = { workspace = true, features = ["zingo"] }
 serde = { workspace = true }
 serde_json = { workspace = true }
 anyhow = { workspace = true }

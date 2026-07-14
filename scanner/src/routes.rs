@@ -7,7 +7,7 @@ use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use axum::routing::{get, post};
 use serde::Serialize;
-use turnstile_core::{ScanError, ScanRequest, ScanResult, WalletScanner};
+use turnstile_core::{ScanError, ScanRequest, ScanResult};
 
 use crate::AppState;
 
@@ -21,17 +21,13 @@ pub fn router(state: Arc<AppState>) -> Router {
 #[derive(Serialize)]
 struct Health {
     status: &'static str,
-    backend: &'static str,
+    indexer: String,
 }
 
 async fn health(State(state): State<Arc<AppState>>) -> Json<Health> {
     Json(Health {
         status: "ok",
-        backend: if state.scanner.is_configured() {
-            "zingolib"
-        } else {
-            "unconfigured"
-        },
+        indexer: state.backend.indexer_uri().to_string(),
     })
 }
 
@@ -40,7 +36,15 @@ async fn scan(
     Json(request): Json<ScanRequest>,
 ) -> Result<Json<ScanResult>, ScanFailure> {
     tracing::info!(birthday = request.birthday, "scan requested");
-    let result = state.scanner.scan(&request)?;
+
+    let result = state.backend.scan(&request).await?;
+
+    tracing::info!(
+        verdict = ?result.verdict,
+        scanned_to_height = result.scanned_to_height,
+        "scan complete"
+    );
+
     Ok(Json(result))
 }
 
@@ -63,10 +67,9 @@ impl IntoResponse for ScanFailure {
             ScanError::InvalidViewingKey
             | ScanError::SpendingKeySupplied
             | ScanError::BirthdayAboveTip(_) => StatusCode::BAD_REQUEST,
-            ScanError::DepthCapExceeded => StatusCode::PAYLOAD_TOO_LARGE,
-            ScanError::NetworkUnavailable | ScanError::BackendUnavailable => {
-                StatusCode::SERVICE_UNAVAILABLE
-            }
+            ScanError::NetworkUnavailable
+            | ScanError::EphemeralStorageUnavailable
+            | ScanError::BackendUnavailable => StatusCode::SERVICE_UNAVAILABLE,
         };
 
         tracing::warn!(status = %status, error = %self.0, "scan failed");

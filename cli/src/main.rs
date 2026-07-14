@@ -1,8 +1,7 @@
 use anyhow::Result;
 use clap::Parser;
-use turnstile_core::pools::format_zec;
-use turnstile_core::scan::validate;
-use turnstile_core::{IRONWOOD_ACTIVATION_HEIGHT, ScanRequest, ScanResult, Verdict};
+use turnstile_core::pools::format_pool;
+use turnstile_core::{IRONWOOD_ACTIVATION_HEIGHT, ScanBackend, ScanRequest, ScanResult, Verdict};
 
 #[derive(Parser)]
 #[command(
@@ -22,20 +21,32 @@ struct Args {
     #[arg(long, value_name = "HEIGHT", help = "Wallet birthday block height")]
     birthday: u64,
 
+    #[arg(
+        long,
+        value_name = "URL",
+        help = "lightwalletd endpoint",
+        default_value = "https://zec.rocks:443"
+    )]
+    server: String,
+
     #[arg(long, help = "Print the result as JSON")]
     json: bool,
 }
 
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
     let args = Args::parse();
+
     let request = ScanRequest {
         ufvk: args.ufvk,
         birthday: args.birthday,
     };
 
-    validate(&request, IRONWOOD_ACTIVATION_HEIGHT)?;
+    if !args.json {
+        eprintln!("Scanning from block {}…", args.birthday);
+    }
 
-    let result = scan_locally(&request)?;
+    let result = ScanBackend::new(args.server).scan(&request).await?;
 
     if args.json {
         println!("{}", serde_json::to_string_pretty(&result)?);
@@ -46,28 +57,29 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn scan_locally(_request: &ScanRequest) -> Result<ScanResult> {
-    anyhow::bail!("local zingolib scanning is not wired up yet")
-}
-
 fn print_verdict(result: &ScanResult) {
     let balances = result.balances;
 
     println!();
-    println!("  TRANSPARENT   {} ZEC", format_zec(balances.transparent));
-    println!("  SAPLING       {} ZEC", format_zec(balances.sapling));
-    println!("  ORCHARD       {} ZEC", format_zec(balances.orchard));
+    println!("  TRANSPARENT   {}", format_pool(balances.transparent));
+    println!("  SAPLING       {}", format_pool(balances.sapling));
+    println!("  ORCHARD       {}", format_pool(balances.orchard));
     println!();
+    println!("  {}", result.verdict.headline());
 
     match result.verdict {
         Verdict::Exposed => println!(
-            "  EXPOSED — {} ZEC sits in Orchard. Migrate before block {IRONWOOD_ACTIVATION_HEIGHT}.",
-            format_zec(balances.orchard)
+            "  Move these funds before block {IRONWOOD_ACTIVATION_HEIGHT}, or they leave only \
+             through the turnstile."
         ),
-        Verdict::Partial => println!(
-            "  NOT SEALED — your funds are in Sapling or transparent. Nothing is at risk, but read what changes."
+        Verdict::Undetermined => println!(
+            "  This key carries no Orchard viewing key, so Turnstile cannot rule on your \
+             exposure. Re-run with a UFVK that includes an Orchard viewing key."
         ),
-        Verdict::Ready => println!("  READY — nothing in Orchard."),
+        Verdict::Partial => {
+            println!("  Nothing is at risk, but read what changes at the activation height.")
+        }
+        Verdict::Ready => println!("  No action needed."),
     }
 
     println!("  Scanned to block {}.", result.scanned_to_height);

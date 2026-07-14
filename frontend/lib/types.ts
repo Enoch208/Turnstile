@@ -1,6 +1,6 @@
 export type ActivationPhase = "preActivation" | "activationWindow" | "postActivation";
 
-export type Verdict = "exposed" | "partial" | "ready";
+export type Verdict = "exposed" | "partial" | "ready" | "undetermined";
 
 export interface ChainStatus {
   height: number;
@@ -11,9 +11,9 @@ export interface ChainStatus {
 }
 
 export interface PoolBalances {
-  transparent: number;
-  sapling: number;
-  orchard: number;
+  transparent: number | null;
+  sapling: number | null;
+  orchard: number | null;
 }
 
 export interface ScanResult {

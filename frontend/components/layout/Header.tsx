@@ -1,6 +1,7 @@
+import Image from "next/image";
 import Link from "next/link";
 
-import { ArrowRight02Icon, Icon, Layers01Icon } from "@/components/icons/Icon";
+import { ArrowRight02Icon, Icon } from "@/components/icons/Icon";
 
 const NAV_LINKS = [
   { href: "/check", label: "Check" },
@@ -13,9 +14,14 @@ export function Header() {
   return (
     <header className="relative z-10 mb-16 flex items-center justify-between gap-6">
       <Link href="/" className="flex cursor-pointer items-center gap-2 text-foreground">
-        <span className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-gradient-to-b from-white/10 to-transparent text-accent">
-          <Icon icon={Layers01Icon} size={16} />
-        </span>
+        <Image
+          src="/logo.png"
+          alt=""
+          width={32}
+          height={32}
+          priority
+          className="h-8 w-8 rounded-full"
+        />
         <span className="text-lg font-medium tracking-tight">
           TURN<span className="text-faint">STILE</span>
         </span>

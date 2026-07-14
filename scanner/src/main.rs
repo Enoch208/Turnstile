@@ -1,5 +1,4 @@
 mod routes;
-mod zingo;
 
 use std::net::SocketAddr;
 use std::sync::Arc;
@@ -7,11 +6,10 @@ use std::sync::Arc;
 use anyhow::Result;
 use tower_http::cors::CorsLayer;
 use tower_http::trace::TraceLayer;
-
-use crate::zingo::ZingoScanner;
+use turnstile_core::ScanBackend;
 
 pub struct AppState {
-    pub scanner: ZingoScanner,
+    pub backend: ScanBackend,
 }
 
 #[tokio::main]
@@ -23,9 +21,10 @@ async fn main() -> Result<()> {
         )
         .init();
 
-    let state = Arc::new(AppState {
-        scanner: ZingoScanner::from_env()?,
-    });
+    let backend = ScanBackend::from_env();
+    tracing::info!(indexer = backend.indexer_uri(), "scan backend ready");
+
+    let state = Arc::new(AppState { backend });
 
     let app = routes::router(state)
         .layer(TraceLayer::new_for_http())
