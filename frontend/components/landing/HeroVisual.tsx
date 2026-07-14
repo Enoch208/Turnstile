@@ -85,7 +85,7 @@ export function HeroVisual() {
             </div>
 
             <span className="font-mono text-[9px] uppercase tracking-wider text-white/40">
-              Sealed at 3,428,143
+              Closes at 3,428,143
             </span>
           </div>
 

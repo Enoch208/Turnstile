@@ -1,27 +1,16 @@
 import { ArrowRight02Icon, ArrowUpRight01Icon, Icon } from "@/components/icons/Icon";
+import { LiveBadge } from "@/components/landing/LiveBadge";
 import { HeroVisual } from "@/components/landing/HeroVisual";
-import { TelemetryBar } from "@/components/landing/TelemetryBar";
+import { LiveTelemetry } from "@/components/countdown/LiveTelemetry";
 import { ButtonGlyph, ButtonLink } from "@/components/ui/Button";
-import { LiveDot, Pill } from "@/components/ui/Pill";
 import { IRONWOOD_ACTIVATION_HEIGHT } from "@/lib/constants";
 import { formatHeight } from "@/lib/format";
 
-interface HeroProps {
-  height: number;
-  blocksRemaining: number;
-  daysRemaining: number;
-}
-
-export function Hero({ height, blocksRemaining, daysRemaining }: HeroProps) {
+export function Hero() {
   return (
     <section className="relative z-10 grid flex-grow grid-cols-1 items-center gap-12 pb-8 lg:grid-cols-12 lg:gap-20 lg:pb-0">
       <div className="flex flex-col justify-center lg:col-span-7">
-        <Pill className="mb-8">
-          <LiveDot />
-          <span className="font-mono text-xs text-muted">
-            Ironwood activation in {daysRemaining} days
-          </span>
-        </Pill>
+        <LiveBadge />
 
         <h1 className="mb-8 text-5xl font-medium leading-[0.95] tracking-tighter text-foreground lg:text-[5rem]">
           Turnstile
@@ -59,7 +48,7 @@ export function Hero({ height, blocksRemaining, daysRemaining }: HeroProps) {
           </ButtonLink>
         </div>
 
-        <TelemetryBar height={height} blocksRemaining={blocksRemaining} status="NOMINAL" />
+        <LiveTelemetry />
       </div>
 
       <div className="lg:col-span-5">
