@@ -8,8 +8,8 @@ import { formatHeight } from "@/lib/format";
 const PRODUCT_LINKS = [
   { href: "/check", label: "Check my wallet" },
   { href: "/guides", label: "Migration guides" },
-  { href: "/#pools", label: "Shielded pools" },
-  { href: "/#readiness", label: "Ecosystem readiness" },
+  { href: "/alerts", label: "Activation alerts" },
+  { href: "/readiness", label: "Ecosystem readiness" },
 ];
 
 const RESOURCE_LINKS = [

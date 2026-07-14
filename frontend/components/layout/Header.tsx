@@ -6,8 +6,8 @@ import { ArrowRight02Icon, Icon } from "@/components/icons/Icon";
 const NAV_LINKS = [
   { href: "/check", label: "Check" },
   { href: "/guides", label: "Guides" },
-  { href: "/#pools", label: "Pools" },
-  { href: "/#readiness", label: "Readiness" },
+  { href: "/alerts", label: "Alerts" },
+  { href: "/readiness", label: "Readiness" },
 ];
 
 export function Header() {

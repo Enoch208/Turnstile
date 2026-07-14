@@ -29,10 +29,13 @@ export interface PoolSnapshot {
   orchard: number;
 }
 
+export type ReadinessStatus = "ready" | "in-progress" | "at-risk" | "unknown";
+
 export interface ReadinessEntry {
   name: string;
   kind: "wallet" | "exchange" | "service";
-  status: "ready" | "in-progress" | "unknown";
-  source: string;
-  verifiedOn: string;
+  status: ReadinessStatus;
+  note: string;
+  source: string | null;
+  verifiedOn: string | null;
 }

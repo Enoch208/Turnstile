@@ -1,0 +1,45 @@
+{
+  "reviewedOn": "2026-07-14",
+  "entries": [
+    {
+      "name": "zcashd",
+      "kind": "service",
+      "status": "at-risk",
+      "note": "zcashd halts itself at block 3,417,100, roughly 11,000 blocks before Orchard stops taking deposits. A node that will not start cannot move your funds, so migrate to Zallet before then.",
+      "source": "https://github.com/zcash/zcash/blob/master/src/deprecation.h",
+      "verifiedOn": "2026-07-14"
+    },
+    {
+      "name": "Zallet",
+      "kind": "wallet",
+      "status": "unknown",
+      "note": "The zcashd successor. It can import a unified full viewing key but cannot export one, so Turnstile cannot check a Zallet wallet — read your balance in the wallet instead.",
+      "source": "https://github.com/zcash/wallet",
+      "verifiedOn": "2026-07-14"
+    },
+    {
+      "name": "Zashi",
+      "kind": "wallet",
+      "status": "unknown",
+      "note": "Shields to Orchard by default, so Zashi balances are the most likely to be affected. It cannot export a viewing key, so Turnstile cannot check it — the guide shows how to read your balance in the app.",
+      "source": "https://github.com/Electric-Coin-Company/zashi/issues/55",
+      "verifiedOn": "2026-07-14"
+    },
+    {
+      "name": "YWallet",
+      "kind": "wallet",
+      "status": "unknown",
+      "note": "Exports a unified viewing key, so Turnstile can check it. Its key carries Sapling and Orchard but no transparent component, so transparent balances read as not visible.",
+      "source": "https://ywallet.app",
+      "verifiedOn": "2026-07-14"
+    },
+    {
+      "name": "Zingo PC",
+      "kind": "wallet",
+      "status": "unknown",
+      "note": "Exports a unified full viewing key and its birthday together. Turnstile's own scanning is built on zingolib.",
+      "source": "https://github.com/zingolabs/zingolib",
+      "verifiedOn": "2026-07-14"
+    }
+  ]
+}
