@@ -7,25 +7,28 @@ use crate::pools::PoolBalances;
 use crate::scan::{ScanError, ScanRequest, ScanResult, validate};
 
 pub struct ScanBackend {
-    indexer_uri: String,
+    endpoints: Vec<String>,
 }
 
 impl ScanBackend {
     pub fn new(indexer_uri: impl Into<String>) -> Self {
         Self {
-            indexer_uri: indexer_uri.into(),
+            endpoints: vec![indexer_uri.into()],
         }
     }
 
     pub fn from_env() -> Self {
-        Self::new(
-            std::env::var("LIGHTWALLETD_URL")
-                .unwrap_or_else(|_| "https://zec.rocks:443".to_string()),
-        )
+        Self {
+            endpoints: crate::indexer::from_env(),
+        }
     }
 
     pub fn indexer_uri(&self) -> &str {
-        &self.indexer_uri
+        self.endpoints.first().map(String::as_str).unwrap_or("")
+    }
+
+    pub fn endpoints(&self) -> &[String] {
+        &self.endpoints
     }
 
     pub async fn scan(&self, request: &ScanRequest) -> Result<ScanResult, ScanError> {
@@ -34,8 +37,29 @@ impl ScanBackend {
         let birthday = u32::try_from(request.birthday)
             .map_err(|_| ScanError::BirthdayAboveTip(request.birthday))?;
 
-        let uri = self
-            .indexer_uri
+        let mut last = ScanError::NetworkUnavailable;
+
+        for endpoint in &self.endpoints {
+            match self.scan_via(endpoint, request, birthday).await {
+                Ok(result) => return Ok(result),
+                Err(ScanError::NetworkUnavailable) => {
+                    tracing::warn!(indexer = %endpoint, "indexer unreachable, trying the next");
+                    last = ScanError::NetworkUnavailable;
+                }
+                Err(error) => return Err(error),
+            }
+        }
+
+        Err(last)
+    }
+
+    async fn scan_via(
+        &self,
+        endpoint: &str,
+        request: &ScanRequest,
+        birthday: u32,
+    ) -> Result<ScanResult, ScanError> {
+        let uri = endpoint
             .parse::<http::Uri>()
             .map_err(|_| ScanError::NetworkUnavailable)?;
 

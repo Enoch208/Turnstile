@@ -8,7 +8,8 @@ use axum::response::{IntoResponse, Response};
 use axum::routing::{get, post};
 use serde::Serialize;
 use turnstile_core::scan::validate;
-use turnstile_core::{ChainStatus, ScanError, ScanRequest, chain_status};
+use turnstile_core::tip::chain_tip_with_fallback;
+use turnstile_core::{ChainStatus, ScanError, ScanRequest};
 
 use crate::AppState;
 use crate::jobs::JobState;
@@ -36,7 +37,10 @@ async fn health(State(state): State<Arc<AppState>>) -> Json<Health> {
 }
 
 async fn status(State(state): State<Arc<AppState>>) -> Result<Json<ChainStatus>, ScanFailure> {
-    Ok(Json(chain_status(state.backend.indexer_uri()).await?))
+    let (height, indexer) = chain_tip_with_fallback(state.backend.endpoints()).await?;
+    tracing::debug!(%indexer, height, "chain tip read");
+
+    Ok(Json(ChainStatus::from_height(height)))
 }
 
 #[derive(Serialize)]

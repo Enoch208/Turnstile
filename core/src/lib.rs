@@ -1,4 +1,5 @@
 pub mod chain;
+pub mod indexer;
 pub mod memo;
 pub mod pools;
 pub mod scan;

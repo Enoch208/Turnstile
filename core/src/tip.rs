@@ -27,3 +27,19 @@ pub async fn chain_tip(indexer_uri: &str) -> Result<u64, ScanError> {
 pub async fn chain_status(indexer_uri: &str) -> Result<ChainStatus, ScanError> {
     Ok(ChainStatus::from_height(chain_tip(indexer_uri).await?))
 }
+
+pub async fn chain_tip_with_fallback(endpoints: &[String]) -> Result<(u64, String), ScanError> {
+    let mut last = ScanError::NetworkUnavailable;
+
+    for endpoint in endpoints {
+        match chain_tip(endpoint).await {
+            Ok(height) => return Ok((height, endpoint.clone())),
+            Err(error) => {
+                tracing::warn!(indexer = %endpoint, %error, "indexer unreachable, trying the next");
+                last = error;
+            }
+        }
+    }
+
+    Err(last)
+}

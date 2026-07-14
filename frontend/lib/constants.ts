@@ -5,11 +5,6 @@ export const ACTIVATION_WINDOW_BLOCKS = 20;
 
 export const ZATOSHI_PER_ZEC = 100_000_000;
 
-export const LIGHTWALLETD_ENDPOINTS = [
-  "https://zec.rocks:443",
-  "https://mainnet.lightwalletd.com:9067",
-] as const;
-
 export const ZECHUB_WIKI_URL = "https://zechub.wiki";
 export const ZCASH_UPGRADE_URL = "https://z.cash/upgrade/";
 
