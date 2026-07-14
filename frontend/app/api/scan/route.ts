@@ -2,32 +2,12 @@ import { NextResponse } from "next/server";
 
 import { ORCHARD_ACTIVATION_HEIGHT } from "@/lib/constants";
 import { inspectKey } from "@/lib/keys";
+import { RateLimiter, clientIp } from "@/lib/rateLimit";
 
 const SCANNER_URL = process.env.SCANNER_URL ?? "http://localhost:8080";
-const WINDOW_MS = 10 * 60 * 1000;
-const MAX_SCANS_PER_WINDOW = 5;
 const START_TIMEOUT_MS = 10_000;
 
-const hits = new Map<string, number[]>();
-
-function clientIp(request: Request) {
-  const forwarded = request.headers.get("x-forwarded-for");
-  return forwarded?.split(",")[0]?.trim() ?? "unknown";
-}
-
-function rateLimited(ip: string) {
-  const now = Date.now();
-  const recent = (hits.get(ip) ?? []).filter((at) => now - at < WINDOW_MS);
-
-  if (recent.length >= MAX_SCANS_PER_WINDOW) {
-    hits.set(ip, recent);
-    return true;
-  }
-
-  recent.push(now);
-  hits.set(ip, recent);
-  return false;
-}
+const limiter = new RateLimiter();
 
 export async function POST(request: Request) {
   let payload: { ufvk?: unknown; birthday?: unknown };
@@ -57,7 +37,7 @@ export async function POST(request: Request) {
       ? payload.birthday
       : ORCHARD_ACTIVATION_HEIGHT;
 
-  if (rateLimited(clientIp(request))) {
+  if (limiter.check(clientIp(request))) {
     return NextResponse.json(
       { error: "Too many scans from this address. Try again in a few minutes." },
       { status: 429 },
