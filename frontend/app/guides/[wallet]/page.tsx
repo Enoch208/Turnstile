@@ -74,7 +74,21 @@ export default async function GuidePage({ params }: Params) {
                   <Icon icon={ArrowUpRight01Icon} size={16} />
                 </ButtonGlyph>
               </ButtonLink>
-            ) : null}
+            ) : (
+              <div className="rounded-xl border border-border bg-surface p-5">
+                <h3 className="mb-2 font-mono text-[10px] uppercase tracking-widest text-faint">
+                  Can Turnstile check this wallet?
+                </h3>
+                <p className="text-sm leading-relaxed text-muted">
+                  Not this one — it does not export a viewing key. The steps here read your balance
+                  inside the wallet instead. If you use a wallet that does,{" "}
+                  <Link href="/check" className="cursor-pointer text-accent hover:underline">
+                    check it here
+                  </Link>
+                  .
+                </p>
+              </div>
+            )}
 
             <a
               href={guide.source.url}
@@ -85,6 +99,18 @@ export default async function GuidePage({ params }: Params) {
               {guide.source.label}
               <Icon icon={ArrowUpRight01Icon} size={15} />
             </a>
+
+            <div className="rounded-xl border border-border bg-surface p-5">
+              <h3 className="mb-2 font-mono text-[10px] uppercase tracking-widest text-faint">
+                Get alerted before it closes
+              </h3>
+              <p className="text-sm leading-relaxed text-muted">
+                <Link href="/alerts" className="cursor-pointer text-accent hover:underline">
+                  Subscribe with a shielded memo
+                </Link>{" "}
+                — 48 hours before, 1 hour before, and at activation.
+              </p>
+            </div>
           </aside>
         </div>
       </article>
