@@ -1,97 +1,141 @@
-# Turnstile — Ironwood Migration Companion
+# Turnstile — the Ironwood migration companion
 
-> **Ironwood activates at block 3,428,143. Is your ZEC ready?**
+> **Orchard stops taking deposits at block 3,428,143 (~28 July 2026). Is your ZEC ready?**
 
-Turnstile tells any Zcash user, in under 60 seconds and **without ever touching their spending
-keys**, whether their shielded funds are exposed to the Orchard pool closure — and walks them
-through exactly what to do about it, wallet by wallet.
+Turnstile tells any Zcash user, in under a minute and **without ever touching a spending key**,
+whether their funds sit in the Orchard pool — and walks them through exactly what to do about it,
+wallet by wallet.
 
 Built for **ZecHub Hackathon 3.0** · Infrastructure track · MIT licensed.
 
+---
+
 ## What it does
-
-- **Activation countdown** — live mainnet height, blocks remaining, ETA with block-drift correction.
-- **Wallet readiness check** — paste a unified full viewing key, get a pool-by-pool verdict
-  (transparent / Sapling / Orchard) and a migration plan. Keys never stored, never logged.
-- **Migration guides** — Zashi, YWallet, Zingo PC, Zallet, and funds on an exchange.
-- **Anonymous alerts** — subscribe by sending a shielded mainnet memo. No email, no account.
-- **`turnstile-check` CLI** — the same scan, run entirely on your own machine.
-
-## What Turnstile can and cannot see
-
-Turnstile reads with a **Unified Full Viewing Key (UFVK)**. A viewing key can *see*; it can never
-*spend*. This is Zcash selective disclosure working exactly as designed.
-
-**It can see:** your pool balances and the transactions your key is entitled to decrypt.
-**It cannot see, and will never accept:** a seed phrase or a spending key. There is no code path
-that takes one.
-
-Your viewing key is held in memory for the duration of the scan and then discarded. It is never
-written to a log, a database, an analytics event, or a URL. The scanner wipes its wallet directory
-after every job. If you would rather not send a viewing key anywhere at all, run the CLI locally —
-it is a first-class path, not a fallback.
-
-## How this uses Zcash mainnet
 
 | | |
 |---|---|
-| **Reads** | Live chain height via lightwalletd; wallet scans via zingolib from a UFVK; shielded pool values. |
-| **Writes / receives** | Real shielded mainnet transactions with encrypted memos drive the alert subscription system. |
+| **Countdown** | Live mainnet height and blocks remaining, read from lightwalletd every minute. |
+| **Wallet readiness check** | Paste a unified full viewing key → per-pool balances → a verdict. |
+| **Migration guides** | Zashi, YWallet, Zingo PC, Zallet, and ZEC held on an exchange. |
+| **Anonymous alerts** | Subscribe by sending a shielded mainnet memo. No email, no account. |
+| **`turnstile-check` CLI** | The same scan, run entirely on your own machine. |
+
+## What Turnstile can and cannot see
+
+Turnstile reads with a **unified full viewing key**. A viewing key can *see*; it can never
+*spend*. This is Zcash selective disclosure working as designed.
+
+**It cannot accept a spending key or a seed phrase.** There is no code path that takes one — the
+browser refuses it before any request is made, and the API refuses it again before anything
+reaches the scanner.
+
+Your viewing key is held in memory for the duration of the scan and then dropped. It is never
+written to a log, a database, or a URL. This is enforced structurally: `ScanRequest` has a
+hand-written `Debug` that prints `<redacted>`, so a stray log line *cannot* leak it. You can check
+this claim yourself — run the scanner at `RUST_LOG=debug`, scan a key, and grep the output for it.
+
+Be aware of what a viewing key *does* expose, wherever you paste it: your balances, your full
+transaction history in and out, memos, and counterparties. If you would rather send us nothing at
+all, **run the CLI** — it is a first-class path, not a fallback.
+
+## The verdicts
+
+| | |
+|---|---|
+| 🔴 **Action needed** | You hold ZEC in Orchard. Not frozen, not lost — but move it. |
+| 🟡 **Nothing to do** | Funds sit in transparent or Sapling. The activation does not touch them. |
+| 🟢 **Ready** | No funds in any pool. |
+| ⚪ **Cannot determine** | **The key carries no Orchard viewing capability.** |
+
+That fourth verdict matters. ZIP-316 permits a valid `uview1…` key that contains a Sapling key but
+**no Orchard key**. Such a key cannot see Orchard at all — and reporting "0 in Orchard, you're
+safe" for it would be a false all-clear, the worst failure this tool could have. Turnstile reports
+each pool as `Option`: a pool that is invisible to your key renders as *not visible to this key*,
+never as a zero balance.
+
+## What actually changes at the activation height
+
+Orchard stops accepting **new** value. Funds already inside are **not frozen and cannot be lost** —
+they leave by being spent out, through the turnstile. Moving early is calmer, not mandatory. We
+say this plainly because the product exists to reduce panic, not to manufacture it.
 
 ## Repository layout
 
 ```
-frontend/   Next.js 16 web app (Vercel)
-core/       turnstile-core — UFVK scan, pool balances, verdict logic
-scanner/    axum service: POST /scan, GET /health + shielded-memo watcher
-cli/        turnstile-check — local scan, same core
+frontend/   Next.js 16 web app
+core/       turnstile-core — scan, verdicts, chain maths, memo parsing
+scanner/    axum service: POST /scan (job-based), GET /status, memo watcher → ntfy
+cli/        turnstile-check
 ```
+
+`core/` owns the domain logic; the scanner and the CLI are thin shells over it, so the scan is
+written once.
 
 ## Quickstart
 
-**Web app**
-
 ```bash
-cd frontend
-npm install
-npm run dev          # http://localhost:3000
+# Scanner service (needs protoc; the zingolib build fetches Sapling params on first compile)
+cargo run -p turnstile-scanner        # :8080
+
+# Web app
+cd frontend && npm install && npm run dev   # :3000
+
+# CLI — scans locally, sends nothing anywhere
+cargo run -p turnstile-check -- --ufvk uview1... --birthday 3411399
 ```
 
-**Scanner service**
+Real output, against mainnet:
 
-```bash
-cargo run -p turnstile-scanner        # listens on :8080
-curl localhost:8080/health
+```
+  TRANSPARENT   0 ZEC
+  SAPLING       0 ZEC
+  ORCHARD       0 ZEC
+
+  This wallet holds no ZEC
+  Turnstile found no funds in any pool. If you expected a balance, check the birthday height —
+  a birthday set after your first transaction will miss it.
+  Scanned to block 3,412,272.
 ```
 
-**CLI**
+## Alerts, without an account
 
-```bash
-cargo build --release -p turnstile-check
-./target/release/turnstile-check --ufvk uview1... --birthday 3350000
+Send **0.0001 ZEC** to the Turnstile address with the memo:
+
+```
+TURNSTILE:SUB:<your-topic>
 ```
 
-**Tests**
+The watcher reads the encrypted memo from the chain, registers the topic, and pushes you a
+confirmation. You are alerted 48 hours before, 1 hour before, and at activation.
 
-```bash
-cargo test           # core logic: verdicts, chain math, memo parsing, key validation
-cd frontend && npm run lint
-```
+The watcher is given a **viewing key, not a spending key** — reading memos is all it needs. The
+server therefore *cannot spend the dust it is sent*, by construction rather than by policy.
 
 ## Configuration
 
-Copy `.env.example` to `.env` and fill it in. Every value has a documented default; the scanner
-falls back across multiple lightwalletd endpoints so a single outage cannot take the tool down.
+Copy `.env.example` to `.env`. Everything has a working default except the alert address; leave
+`TURNSTILE_UFVK` unset and the watcher disables itself while the rest of the tool runs normally.
+
+## Tests
+
+```bash
+cargo test -p turnstile-core   # verdicts, chain maths, memo parsing, key validation
+cargo test --workspace         # the above plus the chain backend
+cd frontend && npm run lint && npm run build
+```
+
+CI runs the pure logic without the chain backend so it returns a signal in about a minute, and
+builds the full workspace separately so a slow zingolib compile cannot mask a broken verdict rule.
 
 ## Credits
 
 Migration guidance is adapted from the **[ZecHub wiki](https://zechub.wiki)** with attribution.
-The shielded-pools monitor builds on ZecHub's open-sourced Shielded Metrics.
+Scanning is powered by **[zingolib](https://github.com/zingolabs/zingolib)** from Zingo Labs.
 
 ## Disclaimer
 
 Turnstile is an educational tool, not financial advice. Always verify against official sources:
-the [ZecHub wiki](https://zechub.wiki) and the [Zcash network upgrade page](https://z.cash/upgrade/).
+the [ZecHub wiki](https://zechub.wiki) and the [Zcash upgrade page](https://z.cash/upgrade/).
 
 ## License
 
