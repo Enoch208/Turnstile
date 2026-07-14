@@ -1,7 +1,7 @@
-FROM rust:1.94-slim AS builder
+FROM rust:1-slim-bookworm AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    pkg-config libssl-dev protobuf-compiler \
+    pkg-config libssl-dev protobuf-compiler git ca-certificates curl \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
@@ -10,6 +10,7 @@ COPY core core
 COPY scanner scanner
 COPY cli cli
 
+RUN mkdir -p /root/.local/share/ZcashParams
 RUN cargo build --release -p turnstile-scanner
 
 FROM debian:bookworm-slim
@@ -20,6 +21,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && useradd --system --create-home --uid 10001 turnstile
 
 COPY --from=builder /build/target/release/turnstile-scanner /usr/local/bin/turnstile-scanner
+COPY --from=builder --chown=turnstile:turnstile \
+    /root/.local/share/ZcashParams /home/turnstile/.local/share/ZcashParams
 
 USER turnstile
 ENV PORT=8080
