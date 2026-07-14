@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 
 import "./globals.css";
@@ -17,6 +17,19 @@ export const metadata: Metadata = {
   title: "Turnstile — Is your ZEC ready for Ironwood?",
   description:
     "Audit your ZEC exposure before block 3,428,143. Paste a viewing key to scan your wallet's pool balances. No spending keys, ever.",
+  applicationName: "Turnstile",
+  openGraph: {
+    title: "Turnstile — Is your ZEC ready for Ironwood?",
+    description:
+      "Audit your ZEC exposure before block 3,428,143. No spending keys, ever.",
+    siteName: "Turnstile",
+    type: "website",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#030303",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({
