@@ -1,4 +1,5 @@
 mod alerts;
+mod jobs;
 mod routes;
 
 use std::net::SocketAddr;
@@ -9,12 +10,17 @@ use tower_http::cors::CorsLayer;
 use tower_http::trace::TraceLayer;
 use turnstile_core::ScanBackend;
 
+use crate::jobs::Jobs;
+
 pub struct AppState {
     pub backend: ScanBackend,
+    pub jobs: Jobs,
 }
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    let _ = dotenvy::dotenv();
+
     tracing_subscriber::fmt()
         .with_env_filter(
             tracing_subscriber::EnvFilter::try_from_default_env()
@@ -29,7 +35,10 @@ async fn main() -> Result<()> {
         std::env::var("NTFY_BASE_URL").unwrap_or_else(|_| "https://ntfy.sh".to_string());
     alerts::spawn(backend.indexer_uri().to_string(), ntfy_base);
 
-    let state = Arc::new(AppState { backend });
+    let state = Arc::new(AppState {
+        backend,
+        jobs: Jobs::new(),
+    });
 
     let app = routes::router(state)
         .layer(TraceLayer::new_for_http())

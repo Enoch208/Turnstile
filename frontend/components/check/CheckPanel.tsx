@@ -10,6 +10,8 @@ import { Alert02Icon, Icon } from "@/components/icons/Icon";
 import { Button } from "@/components/ui/Button";
 import type { ScanResult } from "@/lib/types";
 
+const POLL_MS = 2000;
+
 type State =
   | { status: "idle" }
   | { status: "scanning"; birthday: number }
@@ -23,25 +25,55 @@ export function CheckPanel() {
     setState({ status: "scanning", birthday });
 
     try {
-      const response = await fetch("/api/scan", {
+      const started = await fetch("/api/scan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ufvk, birthday }),
       });
 
-      const body = await response.json();
+      const accepted = await started.json();
 
-      if (!response.ok) {
-        setState({ status: "failed", message: body.error ?? "The scan could not be completed." });
+      if (!started.ok) {
+        setState({
+          status: "failed",
+          message: accepted.error ?? "The scan could not be started.",
+        });
         return;
       }
 
-      setState({ status: "done", result: body as ScanResult });
+      await poll(accepted.jobId as string);
     } catch {
       setState({
         status: "failed",
         message: "Could not reach the scan service. Your key was not stored anywhere.",
       });
+    }
+  }
+
+  async function poll(jobId: string) {
+    while (true) {
+      await new Promise((resolve) => setTimeout(resolve, POLL_MS));
+
+      const response = await fetch(`/api/scan/${jobId}`, { cache: "no-store" });
+      const body = await response.json();
+
+      if (!response.ok) {
+        setState({
+          status: "failed",
+          message: body.error ?? "The scan could not be completed.",
+        });
+        return;
+      }
+
+      if (body.status === "done") {
+        setState({ status: "done", result: body.result as ScanResult });
+        return;
+      }
+
+      if (body.status === "failed") {
+        setState({ status: "failed", message: body.error ?? "The scan failed." });
+        return;
+      }
     }
   }
 

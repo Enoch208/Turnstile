@@ -2,26 +2,24 @@ use std::sync::Arc;
 
 use axum::Json;
 use axum::Router;
-use axum::extract::State;
+use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use axum::routing::{get, post};
 use serde::Serialize;
-use turnstile_core::{ChainStatus, ScanError, ScanRequest, ScanResult, chain_status};
+use turnstile_core::scan::validate;
+use turnstile_core::{ChainStatus, ScanError, ScanRequest, chain_status};
 
 use crate::AppState;
+use crate::jobs::JobState;
 
 pub fn router(state: Arc<AppState>) -> Router {
     Router::new()
         .route("/health", get(health))
         .route("/status", get(status))
-        .route("/scan", post(scan))
+        .route("/scan", post(start_scan))
+        .route("/scan/{id}", get(scan_status))
         .with_state(state)
-}
-
-async fn status(State(state): State<Arc<AppState>>) -> Result<Json<ChainStatus>, ScanFailure> {
-    let status = chain_status(state.backend.indexer_uri()).await?;
-    Ok(Json(status))
 }
 
 #[derive(Serialize)]
@@ -37,21 +35,43 @@ async fn health(State(state): State<Arc<AppState>>) -> Json<Health> {
     })
 }
 
-async fn scan(
+async fn status(State(state): State<Arc<AppState>>) -> Result<Json<ChainStatus>, ScanFailure> {
+    Ok(Json(chain_status(state.backend.indexer_uri()).await?))
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct Accepted {
+    job_id: String,
+}
+
+async fn start_scan(
     State(state): State<Arc<AppState>>,
     Json(request): Json<ScanRequest>,
-) -> Result<Json<ScanResult>, ScanFailure> {
-    tracing::info!(birthday = request.birthday, "scan requested");
+) -> Result<(StatusCode, Json<Accepted>), ScanFailure> {
+    validate(&request)?;
 
-    let result = state.backend.scan(&request).await?;
+    let backend = Arc::clone(&state);
+    let job_id = state
+        .jobs
+        .spawn(request, move |request| async move {
+            backend.backend.scan(&request).await
+        })
+        .await;
 
-    tracing::info!(
-        verdict = ?result.verdict,
-        scanned_to_height = result.scanned_to_height,
-        "scan complete"
-    );
+    Ok((StatusCode::ACCEPTED, Json(Accepted { job_id })))
+}
 
-    Ok(Json(result))
+async fn scan_status(
+    State(state): State<Arc<AppState>>,
+    Path(id): Path<String>,
+) -> Result<Json<JobState>, ScanFailure> {
+    state
+        .jobs
+        .get(&id)
+        .await
+        .map(Json)
+        .ok_or(ScanFailure(ScanError::UnknownJob))
 }
 
 struct ScanFailure(ScanError);
@@ -73,12 +93,13 @@ impl IntoResponse for ScanFailure {
             ScanError::InvalidViewingKey
             | ScanError::SpendingKeySupplied
             | ScanError::BirthdayAboveTip(_) => StatusCode::BAD_REQUEST,
+            ScanError::UnknownJob => StatusCode::NOT_FOUND,
             ScanError::NetworkUnavailable
             | ScanError::EphemeralStorageUnavailable
             | ScanError::BackendUnavailable => StatusCode::SERVICE_UNAVAILABLE,
         };
 
-        tracing::warn!(status = %status, error = %self.0, "scan failed");
+        tracing::warn!(status = %status, error = %self.0, "request failed");
 
         (
             status,

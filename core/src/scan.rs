@@ -51,6 +51,8 @@ pub enum ScanError {
     EphemeralStorageUnavailable,
     #[error("the zingolib scan backend is not compiled into this build")]
     BackendUnavailable,
+    #[error("no such scan job — it may have expired")]
+    UnknownJob,
 }
 
 pub fn validate(request: &ScanRequest) -> Result<(), ScanError> {

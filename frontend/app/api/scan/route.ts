@@ -6,7 +6,7 @@ import { inspectKey } from "@/lib/keys";
 const SCANNER_URL = process.env.SCANNER_URL ?? "http://localhost:8080";
 const WINDOW_MS = 10 * 60 * 1000;
 const MAX_SCANS_PER_WINDOW = 5;
-const SCAN_TIMEOUT_MS = 5 * 60 * 1000;
+const START_TIMEOUT_MS = 10_000;
 
 const hits = new Map<string, number[]>();
 
@@ -49,10 +49,7 @@ export async function POST(request: Request) {
   }
 
   if (problem) {
-    return NextResponse.json(
-      { error: "That is not a unified full viewing key." },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "That is not a unified full viewing key." }, { status: 400 });
   }
 
   const birthday =
@@ -72,7 +69,7 @@ export async function POST(request: Request) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ufvk, birthday }),
-      signal: AbortSignal.timeout(SCAN_TIMEOUT_MS),
+      signal: AbortSignal.timeout(START_TIMEOUT_MS),
     });
 
     const body = await response.json();
