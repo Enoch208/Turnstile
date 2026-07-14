@@ -84,18 +84,29 @@ cd frontend && npm install && npm run dev   # :3000
 cargo run -p turnstile-check -- --ufvk uview1... --birthday 3411399
 ```
 
-Real output, against mainnet:
+Real output, against mainnet, from a wallet holding real ZEC in Orchard:
 
 ```
   TRANSPARENT   0 ZEC
   SAPLING       0 ZEC
-  ORCHARD       0 ZEC
+  ORCHARD       0.01176637 ZEC
 
-  This wallet holds no ZEC
-  Turnstile found no funds in any pool. If you expected a balance, check the birthday height —
-  a birthday set after your first transaction will miss it.
-  Scanned to block 3,412,272.
+  You hold ZEC in the Orchard pool
+  Your funds are not frozen and cannot be lost. After the activation height Orchard accepts
+  nothing new, and value leaves only by being spent out. Move it while your wallet still makes
+  that a single tap.
+  Activation is at block 3428143.
+  Scanned to block 3,412,461.
 ```
+
+That verdict was produced from a **viewing key alone** — the wallet's spending key never went
+anywhere near Turnstile. The scanner's logs for that scan read, in full:
+
+```
+INFO turnstile_scanner::jobs: scan complete job=39e4fbe01 verdict=Exposed scanned_to_height=3412461
+```
+
+No key. Grep them yourself.
 
 ## Alerts, without an account
 
