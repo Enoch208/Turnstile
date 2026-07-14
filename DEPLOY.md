@@ -35,6 +35,24 @@ jobs are held in memory**. With two machines behind the load balancer, a client 
 on one and poll for it on the other, which would return "no such scan job". Scaling out requires
 moving job state to shared storage first.
 
+### The indexer must be Ironwood-ready before 28 July
+
+`LIGHTWALLETD_URL` defaults to `https://zec.rocks:443`, which today serves the chain through
+**lightwalletd** — and upstream lightwalletd has **not shipped Ironwood support**. Its latest
+release predates the upgrade and the only NU6.3 work is an unmerged draft PR. `zec.rocks` runs
+Ironwood on testnet only.
+
+Turnstile reads the chain through this endpoint, so **Turnstile's own scanning is downstream of
+this risk**. Before activation, point it at an indexer that has shipped Ironwood support —
+**Zaino 0.6.0** is the one verified mainnet-ready path today:
+
+```bash
+fly secrets set LIGHTWALLETD_URL=https://<an-ironwood-ready-indexer>:443
+```
+
+No code change is needed; the endpoint is configuration. But a tool that tells people the pool has
+closed is worthless if it cannot read the chain on the day it closes.
+
 ### The alert watcher
 
 Set `TURNSTILE_UFVK` and the watcher starts polling mainnet for `TURNSTILE:SUB:` memos. Leave it

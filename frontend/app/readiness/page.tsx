@@ -20,6 +20,9 @@ const REPO_URL = "https://github.com/Enoch208/Turnstile";
 export default function ReadinessPage() {
   const entries = readiness.entries as ReadinessEntry[];
   const unknown = entries.filter((entry) => entry.status === "unknown").length;
+  const declaredReady = entries.filter(
+    (entry) => entry.status === "ready" && entry.kind !== "service",
+  ).length;
 
   return (
     <AppFrame>
@@ -38,12 +41,26 @@ export default function ReadinessPage() {
           can link to.
         </p>
 
-        <p className="mb-10 max-w-2xl rounded-xl border border-border bg-surface px-5 py-4 text-sm leading-relaxed text-muted">
-          <strong className="text-foreground">{unknown} of {entries.length}</strong> have made no
-          public statement we could find. That is not a criticism of them and not a warning about
-          them — it means we do not know, and we would rather say so than colour a square green.
-          Ask them, and send us the answer.
-        </p>
+        <div className="mb-10 max-w-2xl rounded-xl border border-border bg-surface px-5 py-4">
+          <p className="mb-3 text-sm leading-relaxed text-foreground">
+            {declaredReady === 0 ? (
+              <>
+                <strong>No wallet or exchange has publicly declared itself ready.</strong> Every
+                confirmed-ready row below is infrastructure — a node or an indexer, not something
+                you hold funds in.
+              </>
+            ) : null}
+          </p>
+
+          <p className="text-sm leading-relaxed text-muted">
+            <strong className="text-foreground">
+              {unknown} of {entries.length}
+            </strong>{" "}
+            have said nothing we could find. That is not a criticism and not a warning — it means we
+            do not know, and we would rather say so than colour a square green. Ask them, and send
+            us the answer.
+          </p>
+        </div>
 
         <ReadinessBoard entries={entries} />
 

@@ -5,10 +5,10 @@ export const zashi: Guide = {
   name: "Zashi",
   kind: "mobile",
   summary:
-    "Zashi shields to Orchard by default, so if you hold ZEC here it is almost certainly in the pool that stops taking deposits. Zashi cannot export a viewing key, so you check your balance inside the app rather than through Turnstile.",
+    "Zashi (now published as Zodl) shields to Orchard by default, so if you hold ZEC here it is almost certainly in the pool that stops taking deposits. It does not export a viewing key, so you check your balance inside the app rather than through Turnstile.",
   canExportUfvk: false,
   ufvkNote:
-    "Zashi does not export a unified full viewing key. There is no menu path for it, and the request has been open since 2024. That is a limitation of the wallet, not of Turnstile — so read your balance in the app using the steps below.",
+    "We could find no way to export a unified full viewing key from Zashi — no menu path, and no export capability in its source. If you know otherwise, tell us and we will correct this. Either way you do not need one: read your balance in the app using the steps below.",
   steps: [
     {
       title: "Update Zashi first",
