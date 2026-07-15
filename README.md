@@ -4,6 +4,7 @@
 
 &nbsp;
 
+[![Live demo](https://img.shields.io/badge/●_live-turnstile--xi.vercel.app-34d399)](https://turnstile-xi.vercel.app)
 [![License: MIT](https://img.shields.io/badge/license-MIT-34d399.svg)](LICENSE)
 ![Tests](https://img.shields.io/badge/tests-88%20passing-3fb950)
 ![Read-only](https://img.shields.io/badge/read--only-never%20a%20spending%20key-34d399)
@@ -14,7 +15,9 @@
 
 On ~28 July 2026, at block **3,428,143**, the Ironwood upgrade seals the Orchard shielded pool: no new deposits, no internal transfers. Every shielded wallet is affected, and the question every ZEC holder is about to ask has no tool to answer it — _am I exposed, and what do I do?_ Turnstile reads your wallet with a **unified full viewing key** — a key that can *see* but can never *spend* — tells you pool-by-pool where your funds actually sit, and walks you through the fix for your specific wallet. The trust proposition is enforced in code, not promised in copy: there is no path that accepts a spending key, and your viewing key never reaches a log, a database, or a URL.
 
-**[ Run it locally ↗ ](#run-it-locally)** &nbsp;·&nbsp; **[ The safety model ↗ ](#the-one-rule--never-a-spending-key)** &nbsp;·&nbsp; **[ See a real scan ↗ ](#-see-it-in-one-command)** &nbsp;·&nbsp; **[ What's real vs pending ↗ ](#whats-real-vs-pending--the-honesty-table)** &nbsp;·&nbsp; **[ Architecture ↗ ](#architecture)**
+### ▶ Live now — paste your own viewing key and get a real verdict at **[turnstile-xi.vercel.app](https://turnstile-xi.vercel.app)**
+
+**[ Live demo ↗ ](https://turnstile-xi.vercel.app)** &nbsp;·&nbsp; **[ Run it locally ↗ ](#run-it-locally)** &nbsp;·&nbsp; **[ The safety model ↗ ](#the-one-rule--never-a-spending-key)** &nbsp;·&nbsp; **[ See a real scan ↗ ](#-see-it-in-one-command)** &nbsp;·&nbsp; **[ What's real vs pending ↗ ](#whats-real-vs-pending--the-honesty-table)** &nbsp;·&nbsp; **[ Architecture ↗ ](#architecture)**
 
 Built for **ZecHub Hackathon 3.0** · Infrastructure track · MIT licensed. _An educational tool, not financial advice — always verify against official sources._
 
@@ -289,6 +292,13 @@ Copy `.env.example` to `.env`. Everything has a working default except the alert
 | `NTFY_BASE_URL` | `https://ntfy.sh` | Push backend for alerts |
 
 ## Deploy
+
+Turnstile runs in production today, both halves on real infrastructure:
+
+| | |
+|---|---|
+| **Web app** | **[turnstile-xi.vercel.app](https://turnstile-xi.vercel.app)** — Vercel |
+| **Scanner** | **[turnstile-scanner.fly.dev](https://turnstile-scanner.fly.dev)** — Fly.io · Amsterdam · single machine · memo watcher running |
 
 Full instructions — scanner to Fly.io, web app to Vercel — live in **[DEPLOY.md](DEPLOY.md)**. The one thing not to miss: `LIGHTWALLETD_URL` must point at an **Ironwood-ready indexer** before block 3,428,143, because Turnstile reads the chain through it. It is configuration, not code — but it is the difference between a working tool and a broken one on the day it matters most.
 
