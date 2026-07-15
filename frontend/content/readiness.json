@@ -1,6 +1,14 @@
 {
-  "reviewedOn": "2026-07-14",
+  "reviewedOn": "2026-07-15",
   "entries": [
+    {
+      "name": "Turnstile (this site)",
+      "kind": "service",
+      "status": "in-progress",
+      "note": "Held to the same standard as every other row. Scanning runs on zingolib, whose current pin of zcash_protocol (0.9.0) predates NU6.3; the newest zcash_protocol release ships the Ironwood consensus rules and zingolib is integrating them. Everything here is verified against mainnet pre-activation; post-activation scanning depends on that upstream work landing.",
+      "source": "https://github.com/zingolabs/zingolib/issues/2420",
+      "verifiedOn": "2026-07-15"
+    },
     {
       "name": "zcashd",
       "kind": "service",

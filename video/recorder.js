@@ -314,6 +314,24 @@ async function main() {
   });
   }
 
+  // ---- pools: the turnstile tracker
+  if (want("pools")) {
+  await page.goto(`${BASE}/pools`, { waitUntil: "networkidle2" });
+  await page.waitForFunction(() => document.body.innerText.includes("ZEC"), { timeout: 30000 });
+  await page.evaluate(CURSOR_INIT);
+  await record(page, "pools", async () => {
+    const t0 = Date.now();
+    await idle(page, 1600);
+    await moveToText(page, "3,770,220 ZEC", 1100);
+    await pulse(page);
+    await idle(page, 1800);
+    await scrollToY(page, 520, 2200);
+    await idle(page, 2000);
+    const left = vo("pools") + 800 - (Date.now() - t0);
+    if (left > 0) await idle(page, left);
+  });
+  }
+
   // ---- readiness: scroll the board
   if (want("readiness")) {
   await page.goto(`${BASE}/readiness`, { waitUntil: "networkidle2" });

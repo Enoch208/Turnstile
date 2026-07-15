@@ -56,6 +56,12 @@ export const scenes = [
     vo: "And none of this is staged. Here is that shielded memo — a real transaction, confirmed on Zcash mainnet at block three million, four hundred twelve thousand, four hundred sixty five. An encrypted memo in, a push notification out, and not one byte of personal data anywhere on the path.",
   },
   {
+    id: "pools",
+    kind: "app",
+    path: "/pools",
+    vo: "For the community: the shielded pools themselves, charted from ZecHub's own open-source metrics. Three point seven seven million ZEC still sits in Orchard — and after activation, this is where the ecosystem watches it drain.",
+  },
+  {
     id: "readiness",
     kind: "app",
     path: "/readiness",

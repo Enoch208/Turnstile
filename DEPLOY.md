@@ -53,6 +53,13 @@ fly secrets set LIGHTWALLETD_URL=https://<an-ironwood-ready-indexer>:443
 No code change is needed; the endpoint is configuration. But a tool that tells people the pool has
 closed is worthless if it cannot read the chain on the day it closes.
 
+The indexer is not the whole story. zingolib's current pin of `zcash_protocol` (0.9.0) predates
+NU6.3; the newest release of that crate ships the Ironwood consensus rules
+(`Nu6_3 => 3_428_143`), and zingolib is integrating them
+([zingolib#2420](https://github.com/zingolabs/zingolib/issues/2420)). Rebuild the scanner against
+zingolib once that lands. Until then, pre-activation scanning is verified and post-activation
+scanning is honestly unknown — Turnstile lists **itself** on the readiness board for this reason.
+
 ### Keep the scanner's port private
 
 The scanner binds `0.0.0.0:8080` and has no auth. The per-IP rate limit and the

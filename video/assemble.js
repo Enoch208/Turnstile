@@ -59,10 +59,10 @@ console.log(`  program: ${total.toFixed(1)}s`);
 let music = `${V}assets/music-140.mp3`;
 let musicLen = 0;
 try { musicLen = probe(music); } catch {}
-const musicInput = musicLen >= total
+const musicInput = musicLen >= total - 6
   ? `-i "${music}"`
   : `-stream_loop -1 -i "${V}assets/music-test.mp3"`;
-console.log(`  music: ${musicLen >= total ? "140s bed" : "looped 115s bed"}`);
+console.log(`  music: ${musicLen >= total - 6 ? "140s bed (apad tail)" : "looped 115s bed"}`);
 sh(
   `ffmpeg -y -i "${TMP}program.mp4" ${musicInput} -filter_complex ` +
   `"[0:a]asplit=2[voM][voK];` +
