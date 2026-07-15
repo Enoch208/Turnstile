@@ -24,14 +24,16 @@ impl std::fmt::Debug for ScanRequest {
 pub struct ScanResult {
     pub balances: PoolBalances,
     pub verdict: Verdict,
+    pub scanned_from_height: u64,
     pub scanned_to_height: u64,
 }
 
 impl ScanResult {
-    pub fn new(balances: PoolBalances, scanned_to_height: u64) -> Self {
+    pub fn new(balances: PoolBalances, scanned_from_height: u64, scanned_to_height: u64) -> Self {
         Self {
             balances,
             verdict: Verdict::from_balances(&balances),
+            scanned_from_height,
             scanned_to_height,
         }
     }
@@ -55,12 +57,20 @@ pub enum ScanError {
     UnknownJob,
 }
 
-pub fn validate(request: &ScanRequest) -> Result<(), ScanError> {
-    let key = request.ufvk.trim();
+const SPENDING_KEY_PREFIXES: &[&str] = &[
+    "secret-extended-key",
+    "zxviews",
+    "uskmain",
+    "uskt",
+    "uview1sk",
+];
 
-    if key.starts_with("secret-extended-key")
-        || key.starts_with("zxviews")
-        || key.starts_with("uskmain")
+pub fn validate(request: &ScanRequest) -> Result<(), ScanError> {
+    let key = request.ufvk.trim().to_lowercase();
+
+    if SPENDING_KEY_PREFIXES
+        .iter()
+        .any(|prefix| key.starts_with(prefix))
     {
         return Err(ScanError::SpendingKeySupplied);
     }
@@ -70,6 +80,16 @@ pub fn validate(request: &ScanRequest) -> Result<(), ScanError> {
     }
 
     Ok(())
+}
+
+pub fn effective_birthday(requested: u64, chain_tip: Option<u64>) -> Result<u32, ScanError> {
+    let birthday = match chain_tip {
+        Some(tip) if requested > tip => return Err(ScanError::BirthdayAboveTip(requested)),
+        Some(_) => requested,
+        None => requested.min(crate::chain::ORCHARD_ACTIVATION_HEIGHT),
+    };
+
+    u32::try_from(birthday).map_err(|_| ScanError::BirthdayAboveTip(requested))
 }
 
 #[cfg(test)]
@@ -107,6 +127,60 @@ mod tests {
     }
 
     #[test]
+    fn a_spending_key_is_rejected_regardless_of_case() {
+        assert!(matches!(
+            validate(&request("SECRET-EXTENDED-KEY-MAIN1ABC")).unwrap_err(),
+            ScanError::SpendingKeySupplied
+        ));
+        assert!(matches!(
+            validate(&request("ZXViews1abc")).unwrap_err(),
+            ScanError::SpendingKeySupplied
+        ));
+        assert!(matches!(
+            validate(&request("uview1SK9abc")).unwrap_err(),
+            ScanError::SpendingKeySupplied
+        ));
+    }
+
+    #[test]
+    fn a_birthday_above_the_tip_is_rejected_not_silently_scanned_as_empty() {
+        // The catastrophic false-all-clear: a birthday past the chain tip would
+        // scan zero blocks and report "holds no ZEC". It must be refused.
+        let err = effective_birthday(3_500_000, Some(3_412_500)).unwrap_err();
+        assert!(matches!(err, ScanError::BirthdayAboveTip(3_500_000)));
+
+        let err = effective_birthday(34_281_430, Some(3_412_500)).unwrap_err();
+        assert!(matches!(err, ScanError::BirthdayAboveTip(_)));
+    }
+
+    #[test]
+    fn a_birthday_at_or_below_the_tip_is_honoured() {
+        assert_eq!(
+            effective_birthday(3_411_399, Some(3_412_500)).unwrap(),
+            3_411_399
+        );
+        assert_eq!(
+            effective_birthday(3_412_500, Some(3_412_500)).unwrap(),
+            3_412_500
+        );
+    }
+
+    #[test]
+    fn without_a_known_tip_it_falls_back_to_orchard_activation_rather_than_trusting_a_high_birthday()
+     {
+        use crate::chain::ORCHARD_ACTIVATION_HEIGHT;
+
+        // If we cannot read the tip, we must not trust a birthday that could be
+        // above a user's Orchard receipt — clamp to Orchard activation so no
+        // Orchard note can be missed.
+        assert_eq!(
+            effective_birthday(3_000_000, None).unwrap(),
+            ORCHARD_ACTIVATION_HEIGHT as u32
+        );
+        assert_eq!(effective_birthday(500_000, None).unwrap(), 500_000);
+    }
+
+    #[test]
     fn garbage_is_rejected() {
         let err = validate(&request("not-a-key")).unwrap_err();
         assert!(matches!(err, ScanError::InvalidViewingKey));
@@ -128,13 +202,21 @@ mod tests {
 
     #[test]
     fn result_derives_its_verdict_from_the_balances() {
-        let result = ScanResult::new(PoolBalances::fully_visible(0, 0, 320_000_000), 3_410_000);
+        let result = ScanResult::new(
+            PoolBalances::fully_visible(0, 0, 320_000_000),
+            1_687_104,
+            3_410_000,
+        );
         assert_eq!(result.verdict, Verdict::Exposed);
     }
 
     #[test]
     fn a_result_from_an_orchard_blind_key_is_undetermined() {
-        let result = ScanResult::new(PoolBalances::new(Some(0), Some(0), None), 3_410_000);
+        let result = ScanResult::new(
+            PoolBalances::new(Some(0), Some(0), None),
+            1_687_104,
+            3_410_000,
+        );
         assert_eq!(result.verdict, Verdict::Undetermined);
     }
 }

@@ -72,6 +72,19 @@ fn print_verdict(result: &ScanResult) {
         println!("  Activation is at block {IRONWOOD_ACTIVATION_HEIGHT}.");
     }
 
-    println!("  Scanned to block {}.", result.scanned_to_height);
+    println!(
+        "  Scanned blocks {} to {}.",
+        result.scanned_from_height, result.scanned_to_height
+    );
+
+    if result.verdict != Verdict::Exposed
+        && result.scanned_from_height > turnstile_core::chain::ORCHARD_ACTIVATION_HEIGHT
+    {
+        println!(
+            "  Note: Orchard funds received before block {} were not counted. Re-run with an \
+             earlier --birthday, or omit it, to be certain.",
+            result.scanned_from_height
+        );
+    }
     println!();
 }

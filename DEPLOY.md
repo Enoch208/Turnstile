@@ -53,6 +53,15 @@ fly secrets set LIGHTWALLETD_URL=https://<an-ironwood-ready-indexer>:443
 No code change is needed; the endpoint is configuration. But a tool that tells people the pool has
 closed is worthless if it cannot read the chain on the day it closes.
 
+### Keep the scanner's port private
+
+The scanner binds `0.0.0.0:8080` and has no auth. The per-IP rate limit and the
+spending-key refusal live in the Next proxy (`/api/scan`), so anything that can reach port 8080
+directly bypasses them. In-process it caps concurrent scans at 4 and mints unguessable job IDs, but
+that is a backstop, not access control. On Fly, expose the service only through the `[http_service]`
+front end and do not publish 8080 to the public internet from any other host; the browser should
+always reach the scanner via the Vercel proxy, never directly.
+
 ### The alert watcher
 
 Set `TURNSTILE_UFVK` and the watcher starts polling mainnet for `TURNSTILE:SUB:` memos. Leave it

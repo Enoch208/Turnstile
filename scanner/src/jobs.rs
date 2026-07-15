@@ -2,11 +2,13 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
+use rand::RngCore;
 use serde::Serialize;
-use tokio::sync::Mutex;
+use tokio::sync::{Mutex, Semaphore};
 use turnstile_core::{ScanError, ScanRequest, ScanResult};
 
 const JOB_TTL: Duration = Duration::from_secs(30 * 60);
+const MAX_CONCURRENT_SCANS: usize = 4;
 
 #[derive(Clone, Serialize)]
 #[serde(tag = "status", rename_all = "camelCase")]
@@ -18,7 +20,7 @@ pub enum JobState {
 
 pub struct Jobs {
     inner: Arc<Mutex<HashMap<String, (JobState, Instant)>>>,
-    next_id: Arc<Mutex<u64>>,
+    permits: Arc<Semaphore>,
 }
 
 impl Default for Jobs {
@@ -31,20 +33,14 @@ impl Jobs {
     pub fn new() -> Self {
         Self {
             inner: Arc::new(Mutex::new(HashMap::new())),
-            next_id: Arc::new(Mutex::new(0)),
+            permits: Arc::new(Semaphore::new(MAX_CONCURRENT_SCANS)),
         }
     }
 
-    async fn mint_id(&self) -> String {
-        let mut next = self.next_id.lock().await;
-        *next += 1;
-
-        let nanos = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.subsec_nanos())
-            .unwrap_or(0);
-
-        format!("{:x}{:x}", nanos, *next)
+    fn mint_id() -> String {
+        let mut bytes = [0u8; 16];
+        rand::rng().fill_bytes(&mut bytes);
+        bytes.iter().map(|b| format!("{b:02x}")).collect()
     }
 
     pub async fn get(&self, id: &str) -> Option<JobState> {
@@ -63,18 +59,18 @@ impl Jobs {
         F: FnOnce(ScanRequest) -> Fut + Send + 'static,
         Fut: std::future::Future<Output = Result<ScanResult, ScanError>> + Send,
     {
-        let id = self.mint_id().await;
+        let id = Self::mint_id();
         self.set(&id, JobState::Running).await;
 
         let jobs = Self {
             inner: Arc::clone(&self.inner),
-            next_id: Arc::clone(&self.next_id),
+            permits: Arc::clone(&self.permits),
         };
         let job_id = id.clone();
-        let birthday = request.birthday;
 
         tokio::spawn(async move {
-            tracing::info!(job = %job_id, birthday, "scan started");
+            let _permit = jobs.permits.acquire().await;
+            tracing::info!(job = %job_id, "scan started");
 
             let state = match run(request).await {
                 Ok(result) => {

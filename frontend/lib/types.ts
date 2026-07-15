@@ -19,6 +19,7 @@ export interface PoolBalances {
 export interface ScanResult {
   balances: PoolBalances;
   verdict: Verdict;
+  scannedFromHeight: number;
   scannedToHeight: number;
 }
 

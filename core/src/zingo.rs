@@ -4,7 +4,7 @@ use zingolib::lightclient::LightClient;
 use zingolib::wallet::WalletSettings;
 
 use crate::pools::PoolBalances;
-use crate::scan::{ScanError, ScanRequest, ScanResult, validate};
+use crate::scan::{ScanError, ScanRequest, ScanResult, effective_birthday, validate};
 
 pub struct ScanBackend {
     endpoints: Vec<String>,
@@ -34,8 +34,11 @@ impl ScanBackend {
     pub async fn scan(&self, request: &ScanRequest) -> Result<ScanResult, ScanError> {
         validate(request)?;
 
-        let birthday = u32::try_from(request.birthday)
-            .map_err(|_| ScanError::BirthdayAboveTip(request.birthday))?;
+        let tip = crate::tip::chain_tip_with_fallback(&self.endpoints)
+            .await
+            .ok()
+            .map(|(height, _)| height);
+        let birthday = effective_birthday(request.birthday, tip)?;
 
         let mut last = ScanError::NetworkUnavailable;
 
@@ -113,6 +116,7 @@ async fn run(config: ClientConfig) -> Result<ScanResult, ScanError> {
             balance.total_sapling_balance.map(|z| z.into_u64()),
             balance.total_orchard_balance.map(|z| z.into_u64()),
         ),
+        u32::from(sync.sync_start_height) as u64,
         u32::from(sync.sync_end_height) as u64,
     ))
 }

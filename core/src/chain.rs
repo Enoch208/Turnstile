@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 pub const IRONWOOD_ACTIVATION_HEIGHT: u64 = 3_428_143;
+pub const ORCHARD_ACTIVATION_HEIGHT: u64 = 1_687_104;
 pub const TARGET_BLOCK_SECONDS: u64 = 75;
 pub const ACTIVATION_WINDOW_BLOCKS: u64 = 20;
 

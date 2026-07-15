@@ -31,6 +31,11 @@ impl PoolBalances {
         self.orchard.is_some()
     }
 
+    // The verdict counts any positive Orchard balance as exposure. Note that the
+    // zingolib backend reports balances excluding dust (notes at or below the
+    // 5,000-zatoshi marginal fee), so Orchard holdings that are entirely dust —
+    // uneconomic to spend, since moving them costs more than they are worth —
+    // arrive here as Some(0) and read as clear.
     pub fn has_orchard_funds(&self) -> bool {
         self.orchard.is_some_and(|amount| amount > 0)
     }

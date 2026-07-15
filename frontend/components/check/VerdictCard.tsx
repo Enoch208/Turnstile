@@ -7,7 +7,7 @@ import {
   Shield01Icon,
   ViewOffIcon,
 } from "@/components/icons/Icon";
-import { IRONWOOD_ACTIVATION_HEIGHT } from "@/lib/constants";
+import { IRONWOOD_ACTIVATION_HEIGHT, ORCHARD_ACTIVATION_HEIGHT } from "@/lib/constants";
 import { formatHeight, formatPool } from "@/lib/format";
 import type { PoolBalances, ScanResult, Verdict } from "@/lib/types";
 import { POOL_LABELS, VERDICT_COPY } from "@/lib/verdict";
@@ -83,6 +83,18 @@ export function VerdictCard({ result }: { result: ScanResult }) {
         {result.verdict === "exposed" ? (
           <p className="mt-6 border-t border-border pt-5 font-mono text-[11px] uppercase tracking-widest text-faint">
             Activation at block {formatHeight(IRONWOOD_ACTIVATION_HEIGHT)}
+          </p>
+        ) : null}
+
+        {result.verdict !== "exposed" &&
+        result.scannedFromHeight > ORCHARD_ACTIVATION_HEIGHT ? (
+          <p className="mt-6 flex items-start gap-3 border-t border-border pt-5 text-xs leading-relaxed text-faint">
+            <Icon icon={Alert02Icon} size={14} className="mt-0.5 text-partial" />
+            <span>
+              Scanned from block {formatHeight(result.scannedFromHeight)} onward. Orchard funds
+              received before then are not counted — if that is possible, re-check with an earlier
+              birthday, or leave the birthday blank for a full scan.
+            </span>
           </p>
         ) : null}
       </div>
