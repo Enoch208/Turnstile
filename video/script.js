@@ -1,7 +1,6 @@
-// The demo cut. Each scene has narration (vo) and a kind:
-//   card  → rendered HTML still (title/section), fades
-//   app   → live capture driving the real app at BASE
-// Order puts the real scan → Exposed verdict as the climax, before the outro.
+// The demo cut. Each scene: narration (vo), a burned-in lower-third (caption),
+// and a kind: card (rendered still) or app (live capture at BASE / url).
+// Discord autoplays muted — captions carry the story without sound.
 
 export const BASE = "http://localhost:4010";
 export const SITE_URL = "https://turnstile-xi.vercel.app";
@@ -11,72 +10,81 @@ export const scenes = [
     id: "intro",
     kind: "card",
     card: "title",
-    vo: "Zcash is about to seal one of its shielded pools. Most holders have no idea if they're affected.",
+    vo: "Zcash is about to close one of its shielded pools. Most holders have no idea if their money is affected.",
   },
   {
     id: "hook",
     kind: "app",
     path: "/",
-    vo: "On July twenty-eighth, at block three million, four hundred twenty-eight thousand, one hundred forty-three, the Ironwood upgrade closes the Orchard pool to new deposits. Turnstile tells you where your ZEC actually sits — in under a minute, and without ever touching a spending key.",
+    caption: "turnstile-xi.vercel.app — live on Zcash mainnet",
+    vo: "This is Turnstile — live on Zcash mainnet, right now. In about two weeks, at block three million four hundred twenty-eight thousand one hundred forty-three, the Orchard pool stops taking deposits. Three point seven seven million ZEC is sitting inside it. Turnstile tells you if yours is too.",
   },
   {
     id: "check",
     kind: "app",
     path: "/check",
-    vo: "It starts with a viewing key. A key that can read your balance, but can never spend it. Turnstile has no field for a seed phrase, and no code path that would accept one.",
+    caption: "The key is parsed in your browser — Rust, compiled to WebAssembly",
+    vo: "It works with a viewing key. A viewing key can read a wallet — it can never spend from it. Watch: the moment you paste it, the key is checked cryptographically, inside your browser, before anything is sent anywhere.",
   },
   {
     id: "scan",
     kind: "app",
     path: "/check",
-    vo: "Paste it, and Turnstile scans the Zcash mainnet — restoring your wallet from the viewing key alone, and reading every shielded pool. Your key lives in memory for the length of the scan, and is never written to a log, a database, or a URL.",
+    caption: "Scanning the real Zcash blockchain, from a viewing key alone",
+    vo: "One click, and Turnstile scans the real Zcash blockchain — restoring the wallet from the viewing key alone, block by block. The key lives in memory for the length of the scan. It is never written down. Anywhere.",
   },
   {
     id: "verdict",
     kind: "app",
     path: "/check",
-    vo: "And here is the answer. Real ZEC, sitting in the Orchard pool, read from a key that cannot move it. Not frozen, not lost — but it needs to move before the pool closes.",
+    caption: "Real ZEC · real Orchard pool · found read-only",
+    vo: "And there is the answer. This wallet holds real ZEC, in the real Orchard pool. Zero point zero one one seven ZEC — exposed. Found with a key that cannot move it.",
   },
   {
     id: "guides",
     kind: "app",
     path: "/guides",
-    vo: "For every wallet, a migration path — even the ones Turnstile can't read. Zashi, the most popular wallet, shields to Orchard by default, yet can't export a viewing key at all.",
+    caption: "A migration path for every wallet — even the ones we can't read",
+    vo: "Every wallet gets a way out. Even the ones Turnstile cannot read — like Zashi, which can't export a viewing key — get honest, step-by-step instructions instead.",
   },
   {
     id: "alerts",
     kind: "app",
     path: "/alerts",
-    vo: "Want a reminder before it closes? Send a shielded memo. No email, no account — the chain itself is the signup form.",
+    caption: "Subscribe by sending a shielded memo — no email, no account",
+    vo: "Need a reminder before the pool closes? Send a shielded memo on mainnet. The memo is the signup. No email. No account. Nothing that identifies you.",
   },
   {
     id: "mainnet",
     kind: "app",
     url: "https://3xpl.com/zcash/transaction/ff53f47083790f046be7977e6c6c2337a430d3de6b5d34eba32c2c0ed7ff382d",
-    vo: "And none of this is staged. Here is that shielded memo — a real transaction, confirmed on Zcash mainnet at block three million, four hundred twelve thousand, four hundred sixty five. An encrypted memo in, a push notification out, and not one byte of personal data anywhere on the path.",
+    caption: "3xpl.com/zcash/transaction/ff53f470… — look it up yourself",
+    vo: "And none of this is staged. This is that exact memo, on a public block explorer we do not control. A real transaction, confirmed on Zcash mainnet at block three million four hundred twelve thousand four hundred sixty-five. Real money moved. Our server decrypted the memo from the chain, and the phone buzzed. You can look this transaction up yourself, right now.",
   },
   {
     id: "pools",
     kind: "app",
     path: "/pools",
-    vo: "For the community: the shielded pools themselves, charted from ZecHub's own open-source metrics. Three point seven seven million ZEC still sits in Orchard — and after activation, this is where the ecosystem watches it drain.",
+    caption: "Data: ZecHub's open-source Shielded Metrics",
+    vo: "Zoom out, and you can watch the whole story. ZecHub's own data shows the Orchard pool already draining, before the deadline. After activation, this chart is where the ecosystem watches it empty.",
   },
   {
     id: "readiness",
     kind: "app",
     path: "/readiness",
-    vo: "And a board tracking who is actually ready. Sourced, dated, and honest about the fifteen that have said nothing at all.",
+    caption: "0 of 17 wallets & exchanges have publicly declared ready",
+    vo: "Who else is ready? We track every public statement, with a source and a date for each. So far — zero wallets, and zero exchanges, have declared themselves ready. We even list ourselves.",
   },
   {
     id: "proof",
     kind: "card",
     card: "grep",
-    vo: "The whole promise, in one line. Grep the server logs for your key, and find nothing. Every scan, by construction.",
+    vo: "One more thing. After everything you just watched — search our server logs for the viewing key. Nothing. It was never there to leak.",
   },
   {
     id: "outro",
     kind: "card",
     card: "outro",
-    vo: "Turnstile. The Ironwood migration companion. Find out if your ZEC is ready.",
+    vo: "Turnstile. Is your ZEC ready for Ironwood? Check it now — the link is right there.",
   },
 ];

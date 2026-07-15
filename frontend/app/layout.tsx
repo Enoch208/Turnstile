@@ -26,6 +26,12 @@ export const metadata: Metadata = {
     siteName: "Turnstile",
     type: "website",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Turnstile — Is your ZEC ready for Ironwood?",
+    description:
+      "3.77M ZEC sits in a pool that closes at block 3,428,143. Check yours with a viewing key — never a spending key.",
+  },
 };
 
 export const viewport: Viewport = {

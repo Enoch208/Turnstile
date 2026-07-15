@@ -200,10 +200,16 @@ async function main() {
     await idle(page, 900);
     await moveToSel(page, "#ufvk", 1100);
     await pulse(page);
-    await idle(page, 1400);
-    await moveToText(page, "What happens to your key", 1100);
-    await idle(page, 1600);
-    await moveToText(page, "A spending key is refused", 900);
+    await idle(page, 1200);
+    await setReactValue(page, "#ufvk", UFVK);
+    await page.waitForFunction(
+      () => document.body.innerText.includes("Valid mainnet key"),
+      { timeout: 10000 },
+    );
+    await moveToText(page, "Valid mainnet key", 900);
+    await pulse(page);
+    await idle(page, 1800);
+    await moveToText(page, "What happens to your key", 1000);
     const left = vo("check") + 800 - (Date.now() - t0);
     if (left > 0) await idle(page, left);
   });
@@ -300,17 +306,35 @@ async function main() {
   await page.evaluate(CURSOR_INIT);
   await record(page, "mainnet", async () => {
     const t0 = Date.now();
-    await idle(page, 2000);
-    await moveToText(page, "3,412,465", 1200);
-    await pulse(page);
-    await idle(page, 2200);
-    await scrollToY(page, 420, 2000);
-    await moveToText(page, "orchard-pool", 1000);
-    await pulse(page);
-    await idle(page, 2400);
-    await scrollToY(page, 0, 1600);
-    const left = vo("mainnet") + 800 - (Date.now() - t0);
-    if (left > 0) await idle(page, left);
+    const safe = async fn => {
+      try {
+        await fn();
+      } catch {
+        try {
+          await page.waitForFunction(() => document.readyState === "complete", { timeout: 8000 });
+          await page.evaluate(CURSOR_INIT);
+        } catch {}
+      }
+    };
+
+    await safe(() => idle(page, 1800));
+    await safe(() => moveToText(page, "ff53f47083790f046be", 1200));
+    await safe(() => pulse(page));
+    await safe(() => idle(page, 2000));
+    await safe(() => moveToText(page, "3,412,465", 1100));
+    await safe(() => pulse(page));
+    await safe(() => idle(page, 2200));
+    await safe(() => scrollToY(page, 420, 2000));
+    await safe(() => moveToText(page, "orchard-pool", 1000));
+    await safe(() => pulse(page));
+    await safe(() => idle(page, 2600));
+    await safe(() => scrollToY(page, 0, 1600));
+
+    let left = vo("mainnet") + 800 - (Date.now() - t0);
+    while (left > 0) {
+      await safe(() => idle(page, Math.min(left, 2000)));
+      left = vo("mainnet") + 800 - (Date.now() - t0);
+    }
   });
   }
 

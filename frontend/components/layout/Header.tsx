@@ -13,7 +13,7 @@ const NAV_LINKS = [
 
 export function Header() {
   return (
-    <header className="relative z-10 mb-16 flex items-center justify-between gap-6">
+    <header className="relative z-10 mb-12 flex flex-wrap items-center justify-between gap-x-4 gap-y-4 md:mb-16">
       <Link href="/" className="flex cursor-pointer items-center gap-2 text-foreground">
         <Image
           src="/logo.png"
@@ -28,12 +28,12 @@ export function Header() {
         </span>
       </Link>
 
-      <nav className="hidden items-center gap-8 rounded-full border border-border bg-surface/80 px-6 py-2 text-xs font-medium uppercase tracking-widest text-faint backdrop-blur-sm md:flex">
+      <nav className="order-3 -mx-1 flex w-full items-center gap-6 overflow-x-auto rounded-full border border-border bg-surface/80 px-5 py-2.5 text-xs font-medium uppercase tracking-widest text-faint backdrop-blur-sm md:order-none md:w-auto md:gap-8 md:px-6 md:py-2">
         {NAV_LINKS.map((link) => (
           <Link
             key={link.href}
             href={link.href}
-            className="cursor-pointer transition-colors duration-200 hover:text-foreground"
+            className="shrink-0 cursor-pointer transition-colors duration-200 hover:text-foreground"
           >
             {link.label}
           </Link>
@@ -42,9 +42,10 @@ export function Header() {
 
       <Link
         href="/check"
-        className="group flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-white/[0.03] px-5 py-2.5 text-[11px] font-medium uppercase tracking-tight text-muted transition-all duration-200 hover:border-border-strong hover:bg-white/[0.06] hover:text-foreground"
+        className="group flex shrink-0 cursor-pointer items-center gap-2 rounded-lg border border-border bg-white/[0.03] px-4 py-2.5 text-[11px] font-medium uppercase tracking-tight text-muted transition-all duration-200 hover:border-border-strong hover:bg-white/[0.06] hover:text-foreground md:px-5"
       >
-        Check my wallet
+        <span className="hidden sm:inline">Check my wallet</span>
+        <span className="sm:hidden">Check</span>
         <Icon
           icon={ArrowRight02Icon}
           size={14}
