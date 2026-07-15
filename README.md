@@ -5,6 +5,8 @@
 &nbsp;
 
 [![Live demo](https://img.shields.io/badge/●_live-turnstile--xi.vercel.app-34d399)](https://turnstile-xi.vercel.app)
+[![Demo video](https://img.shields.io/badge/▶-demo%20video-f87171)](https://youtu.be/Vp7gKDIvjts)
+[![Announcement](https://img.shields.io/badge/𝕏-announcement-14151a)](https://x.com/dreyethh/status/2077387735011094732)
 [![License: MIT](https://img.shields.io/badge/license-MIT-34d399.svg)](LICENSE)
 ![Tests](https://img.shields.io/badge/tests-100%20passing-3fb950)
 ![Read-only](https://img.shields.io/badge/read--only-never%20a%20spending%20key-34d399)
