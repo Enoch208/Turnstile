@@ -122,7 +122,14 @@ The `birthday` is optional: leave it blank and Turnstile scans from Orchard acti
 
 </div>
 
-Live mainnet height and blocks remaining until 3,428,143, read from the indexer every minute, with an ETA derived from the 75-second block target and drift-corrected against recent block timestamps. It has three phases — pre-activation, a ±20-block "it's happening" window, and post-activation — and one hard rule: **when the chain tip is unreachable, it shows `—` and refuses to fabricate a height.** A countdown that guesses is worse than a countdown that admits it can't see.
+Live mainnet height and blocks remaining until 3,428,143, read from the indexer every minute, with an ETA derived from the 75-second block target and drift-corrected against recent block timestamps. It has three phases — pre-activation, a ±20-block "it's happening" window, and post-activation (when the countdown flips to *"the turnstile is open — watch the pool drain"*) — and one hard rule: **when the chain tip is unreachable, it shows `—` and refuses to fabricate a height.** A countdown that guesses is worse than a countdown that admits it can't see.
+
+**Embed it anywhere** — the countdown ships as a widget, offered to the ZecHub wiki and any community site:
+
+```html
+<iframe src="https://turnstile-xi.vercel.app/embed" width="640" height="320"
+        style="border:0;border-radius:16px" title="Ironwood countdown"></iframe>
+```
 
 ## Migration guides
 
