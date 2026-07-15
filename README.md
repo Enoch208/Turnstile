@@ -19,7 +19,7 @@ On ~28 July 2026, at block **3,428,143**, the Ironwood network upgrade closes th
 
 ### ▶ Live now — paste your own viewing key and get a real verdict at **[turnstile-xi.vercel.app](https://turnstile-xi.vercel.app)**
 
-**[ Live demo ↗ ](https://turnstile-xi.vercel.app)** · **[ See a real scan ↗ ](#-see-it-in-one-command)** · **[ The one rule ↗ ](#the-one-rule--never-a-spending-key)** · **[ Architecture ↗ ](#architecture)** · **[ What's real vs pending ↗ ](#whats-real-vs-pending--the-honesty-table)** · **[ Run it locally ↗ ](#run-it-locally)**
+**[ Live demo ↗ ](https://turnstile-xi.vercel.app)** · **[ Demo video ↗ ](https://youtu.be/Vp7gKDIvjts)** · **[ Announcement 𝕏 ↗ ](https://x.com/dreyethh/status/2077387735011094732)** · **[ See a real scan ↗ ](#-see-it-in-one-command)** · **[ The one rule ↗ ](#the-one-rule--never-a-spending-key)** · **[ Architecture ↗ ](#architecture)** · **[ Run it locally ↗ ](#run-it-locally)**
 
 Built for **ZecHub Hackathon 3.0** · Infrastructure track · MIT licensed. _An educational tool, not financial advice._
 
