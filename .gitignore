@@ -39,3 +39,6 @@ Thumbs.db
 *.swp
 keycheck/pkg/
 keycheck/target/
+
+### Video production workspace — large render assets, never commit ###
+video/
