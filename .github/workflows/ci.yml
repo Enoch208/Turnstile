@@ -26,6 +26,8 @@ jobs:
         run: cargo clippy -p turnstile-core --all-targets -- -D warnings
       - name: Test verdicts, chain maths, memo parsing, key validation
         run: cargo test -p turnstile-core
+      - name: Test the WASM key inspector (native)
+        run: cargo test --manifest-path keycheck/Cargo.toml
 
   workspace:
     name: Full workspace

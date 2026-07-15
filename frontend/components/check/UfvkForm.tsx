@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-import { Alert02Icon, ArrowUpRight01Icon, Icon } from "@/components/icons/Icon";
+import { Alert02Icon, ArrowUpRight01Icon, CheckmarkCircle02Icon, Icon } from "@/components/icons/Icon";
 import { Button, ButtonGlyph } from "@/components/ui/Button";
 import { ORCHARD_ACTIVATION_HEIGHT } from "@/lib/constants";
+import { type KeyVerdict, describeInspection, inspectStructurally } from "@/lib/keycheck";
 import { KEY_PROBLEM_MESSAGE, inspectKey, isSeedPhrase } from "@/lib/keys";
 
 interface UfvkFormProps {
@@ -16,6 +17,26 @@ export function UfvkForm({ onScan, disabled }: UfvkFormProps) {
   const [ufvk, setUfvk] = useState("");
   const [birthday, setBirthday] = useState("");
   const [problem, setProblem] = useState<string | null>(null);
+  const [structural, setStructural] = useState<KeyVerdict | null>(null);
+
+  useEffect(() => {
+    const key = ufvk.trim();
+    let cancelled = false;
+
+    const timer = setTimeout(async () => {
+      if (key.length < 20) {
+        if (!cancelled) setStructural(null);
+        return;
+      }
+      const inspection = await inspectStructurally(key);
+      if (!cancelled) setStructural(inspection ? describeInspection(inspection) : null);
+    }, 250);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [ufvk]);
 
   function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -63,6 +84,47 @@ export function UfvkForm({ onScan, disabled }: UfvkFormProps) {
         className="w-full cursor-text resize-none rounded-lg border border-border bg-canvas px-4 py-3 font-mono text-sm text-foreground placeholder:text-faint focus-visible:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-50"
       />
 
+      {structural ? (
+        <div
+          className={`mt-3 flex items-start gap-2.5 rounded-lg border px-3.5 py-2.5 text-xs leading-relaxed ${
+            structural.blocking
+              ? "border-exposed/40 bg-exposed/10 text-exposed"
+              : structural.message
+                ? "border-partial/40 bg-partial/10 text-partial"
+                : "border-ready/30 bg-ready/[0.07] text-muted"
+          }`}
+        >
+          <Icon
+            icon={structural.blocking ? Alert02Icon : CheckmarkCircle02Icon}
+            size={14}
+            className={structural.blocking ? "" : structural.message ? "text-partial" : "text-ready"}
+          />
+          <span>
+            {structural.pools ? (
+              <>
+                <span className="text-foreground">
+                  Valid mainnet key, parsed in your browser
+                </span>{" "}
+                — sees{" "}
+                <PoolChip name="Orchard" present={structural.pools.orchard} />
+                {", "}
+                <PoolChip name="Sapling" present={structural.pools.sapling} />
+                {", "}
+                <PoolChip name="transparent" present={structural.pools.transparent} />
+                {structural.message ? (
+                  <>
+                    <br />
+                    {structural.message}
+                  </>
+                ) : null}
+              </>
+            ) : (
+              structural.message
+            )}
+          </span>
+        </div>
+      ) : null}
+
       <label
         htmlFor="birthday"
         className="mt-6 mb-2 block cursor-pointer font-mono text-[10px] uppercase tracking-widest text-faint"
@@ -102,5 +164,13 @@ export function UfvkForm({ onScan, disabled }: UfvkFormProps) {
         </ButtonGlyph>
       </Button>
     </form>
+  );
+}
+
+function PoolChip({ name, present }: { name: string; present: boolean }) {
+  return (
+    <span className={present ? "text-ready" : "text-faint line-through decoration-1"}>
+      {name}
+    </span>
   );
 }
