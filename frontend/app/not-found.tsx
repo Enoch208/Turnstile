@@ -14,7 +14,7 @@ export default function NotFound() {
         <p className="mb-4 font-mono text-[10px] uppercase tracking-widest text-faint">
           404 — no such page
         </p>
-        <h1 className="mb-4 text-4xl font-medium tracking-tighter text-foreground md:text-6xl">
+        <h1 className="mb-4 text-3xl font-medium tracking-tighter text-foreground md:text-6xl">
           Nothing at this address
         </h1>
         <p className="mb-10 max-w-md text-sm leading-relaxed text-muted">
