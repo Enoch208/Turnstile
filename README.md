@@ -106,6 +106,13 @@ That fourth verdict is the one most tools get wrong. ZIP-316 permits a valid `uv
 
 Paste a unified full viewing key, optionally give the wallet's birthday height, and Turnstile scans mainnet through [zingolib](https://github.com/zingolabs/zingolib), breaks the balance down by pool, and renders the verdict card above — the screenshot that ends up in Discord.
 
+**The key is parsed cryptographically in your browser before anything is sent** — Rust
+(`zcash_address`'s unified decoder: F4Jumble, bech32m, checksum, typed receivers) compiled to
+76KB of WebAssembly. A mistyped character fails the checksum on the spot; a testnet key is named
+as such; and the form shows *which pools your key can even see* — so an Orchard-blind key warns
+you the verdict will be "cannot determine" before the scan, not after. If WASM is unavailable the
+form degrades to prefix checks, and the server re-validates regardless.
+
 The scan is honest about its own edges:
 
 - **Every pool is an `Option`.** A pool your key can't see renders *not visible to this key*, never `0`. (See [the four verdicts](#the-four-verdicts).)
