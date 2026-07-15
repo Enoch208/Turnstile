@@ -1,12 +1,12 @@
 import { ArrowRight02Icon, ArrowUpRight01Icon, Icon } from "@/components/icons/Icon";
 import { LiveBadge } from "@/components/landing/LiveBadge";
-import { HeroVisual } from "@/components/landing/HeroVisual";
+import { HeroVisual, type PoolTotals } from "@/components/landing/HeroVisual";
 import { LiveTelemetry } from "@/components/countdown/LiveTelemetry";
 import { ButtonGlyph, ButtonLink } from "@/components/ui/Button";
 import { IRONWOOD_ACTIVATION_HEIGHT } from "@/lib/constants";
 import { formatHeight } from "@/lib/format";
 
-export function Hero() {
+export function Hero({ pools }: { pools: PoolTotals | null }) {
   return (
     <section className="relative z-10 grid flex-grow grid-cols-1 items-center gap-12 pb-8 lg:grid-cols-12 lg:gap-20 lg:pb-0">
       <div className="flex flex-col justify-center lg:col-span-7">
@@ -52,7 +52,7 @@ export function Hero() {
       </div>
 
       <div className="lg:col-span-5">
-        <HeroVisual />
+        <HeroVisual pools={pools} />
       </div>
     </section>
   );

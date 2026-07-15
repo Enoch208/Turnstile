@@ -1,23 +1,23 @@
 import Image from "next/image";
 
 import { Icon, Notification01Icon } from "@/components/icons/Icon";
+import { ScannerStrip } from "@/components/landing/ScannerStrip";
 import { LiveDot } from "@/components/ui/Pill";
-
-const POOL_SEGMENTS = [
-  { key: "transparent", short: "T", width: "14%", tone: "bg-white/25" },
-  { key: "sapling", short: "S", width: "24%", tone: "bg-white/45" },
-  {
-    key: "orchard",
-    short: "O",
-    width: "62%",
-    tone: "bg-accent shadow-[0_0_14px_rgba(52,211,153,0.7)]",
-  },
-];
+import { formatHeight } from "@/lib/format";
 
 const GLASS =
   "border border-white/10 bg-gradient-to-b from-white/[0.12] to-white/[0.02] backdrop-blur-md";
 
-export function HeroVisual() {
+export interface PoolTotals {
+  orchard: number;
+  sapling: number;
+  sprout: number;
+}
+
+export function HeroVisual({ pools }: { pools: PoolTotals | null }) {
+  const total = pools ? pools.orchard + pools.sapling + pools.sprout : 0;
+  const pct = (v: number) => (total > 0 ? `${((v / total) * 100).toFixed(1)}%` : "0%");
+
   return (
     <div className="group relative h-full min-h-[460px] w-full lg:min-h-[560px]">
       <div className="absolute inset-0 overflow-hidden rounded-[2rem] border border-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.9)]">
@@ -52,50 +52,59 @@ export function HeroVisual() {
             </button>
           </div>
 
-          <div className={`w-full max-w-[260px] self-end rounded-2xl p-4 ${GLASS}`}>
-            <div className="mb-3 flex items-center justify-between">
+          <div className={`w-full max-w-[280px] self-end rounded-2xl p-4 ${GLASS}`}>
+            <div className="mb-1 flex items-center justify-between">
               <span className="font-mono text-[10px] uppercase tracking-widest text-white/60">
-                Pool exposure
+                In the closing pool
               </span>
               <span className="font-mono text-[10px] text-accent">ORCHARD</span>
             </div>
 
-            <div className="mb-3 flex h-1.5 w-full overflow-hidden rounded-full bg-white/10">
-              {POOL_SEGMENTS.map((segment) => (
-                <div
-                  key={segment.key}
-                  style={{ width: segment.width }}
-                  className={segment.tone}
-                />
-              ))}
+            <div className="mb-3 font-mono text-2xl font-bold tabular-nums text-white">
+              {pools ? `${formatHeight(Math.round(pools.orchard))} ZEC` : "—"}
             </div>
 
-            <div className="mb-3 flex items-center gap-3">
-              {POOL_SEGMENTS.map((segment) => (
-                <span
-                  key={segment.key}
-                  className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-wider text-white/50"
-                >
-                  <span
-                    className={`h-1.5 w-1.5 rounded-full ${segment.key === "orchard" ? "bg-accent" : "bg-white/40"}`}
+            {pools ? (
+              <>
+                <div className="mb-3 flex h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+                  <div style={{ width: pct(pools.sprout) }} className="bg-white/25" />
+                  <div style={{ width: pct(pools.sapling) }} className="bg-white/45" />
+                  <div
+                    style={{ width: pct(pools.orchard) }}
+                    className="bg-accent shadow-[0_0_14px_rgba(52,211,153,0.7)]"
                   />
-                  {segment.short}
-                </span>
-              ))}
-            </div>
+                </div>
 
-            <span className="font-mono text-[9px] uppercase tracking-wider text-white/40">
-              Closes at 3,428,143
-            </span>
+                <div className="flex items-center gap-3">
+                  {(
+                    [
+                      ["Sprout", "bg-white/25"],
+                      ["Sapling", "bg-white/45"],
+                      ["Orchard", "bg-accent"],
+                    ] as const
+                  ).map(([label, dot]) => (
+                    <span
+                      key={label}
+                      className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-wider text-white/50"
+                    >
+                      <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
+                      {label}
+                    </span>
+                  ))}
+                  <span className="ml-auto font-mono text-[9px] uppercase tracking-wider text-white/40">
+                    of shielded ZEC
+                  </span>
+                </div>
+              </>
+            ) : (
+              <span className="font-mono text-[9px] uppercase tracking-wider text-white/40">
+                pool data unreachable
+              </span>
+            )}
           </div>
 
-          <div
-            className={`mt-6 flex items-center justify-between rounded-xl px-4 py-3 ${GLASS}`}
-          >
-            <span className="font-mono text-[11px] text-white/70">[!] AWAITING UFVK…</span>
-            <span className="font-mono text-[10px] uppercase tracking-widest text-accent">
-              Ready
-            </span>
+          <div className="mt-6">
+            <ScannerStrip />
           </div>
         </div>
       </div>
