@@ -6,6 +6,7 @@ import { AppFrame } from "@/components/layout/AppFrame";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { Eyebrow } from "@/components/ui/Section";
+import signals from "@/content/readiness-signals.json";
 import readiness from "@/content/readiness.json";
 import type { ReadinessEntry } from "@/lib/types";
 
@@ -75,8 +76,12 @@ export default function ReadinessPage() {
         </a>
 
         <p className="mt-6 max-w-2xl text-xs leading-relaxed text-faint">
-          Last reviewed {readiness.reviewedOn}. Every row carries the source we read and the date we
-          read it. If a status is wrong or out of date, open a pull request against
+          Last reviewed by a human {readiness.reviewedOn}; every source machine-checked{" "}
+          {signals.checkedAt.slice(0, 10)}. CI re-polls all {signals.polled} sources daily — when
+          an upstream release, pull request, or issue moves, it opens an issue for review
+          automatically. The {signals.unpollable} rows with no public statement have nothing to
+          poll; that is the point of the board. Statuses stay human-judged — if one is wrong,
+          open a pull request against
           <code className="mx-1 font-mono text-muted">content/readiness.json</code>— no code
           required.
         </p>

@@ -3,11 +3,31 @@
 import QRCode from "qrcode";
 import { useEffect, useState } from "react";
 
-import { Alert02Icon, CheckmarkCircle02Icon, Copy01Icon, Icon } from "@/components/icons/Icon";
+import {
+  Alert02Icon,
+  ArrowUpRight01Icon,
+  CheckmarkCircle02Icon,
+  Copy01Icon,
+  Icon,
+} from "@/components/icons/Icon";
 import { Button } from "@/components/ui/Button";
-import { isValidTopic, subscriptionMemo, zip321Uri } from "@/lib/zip321";
+import {
+  SUBSCRIPTION_AMOUNT,
+  isValidTopic,
+  ntfyTopicUrl,
+  subscriptionMemo,
+  zip321Uri,
+} from "@/lib/zip321";
 
 const SCHEDULE = ["48 hours before", "1 hour before", "At activation"];
+
+function StepLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mb-2 font-mono text-[10px] uppercase tracking-widest text-faint">
+      {children}
+    </div>
+  );
+}
 
 export function SubscribeCard({ address }: { address: string | null }) {
   const [topic, setTopic] = useState("");
@@ -17,6 +37,7 @@ export function SubscribeCard({ address }: { address: string | null }) {
   const valid = isValidTopic(topic);
   const memo = subscriptionMemo(topic || "your-topic");
   const uri = address && valid ? zip321Uri(address, topic) : null;
+  const alertsUrl = ntfyTopicUrl(valid ? topic : "your-topic");
 
   useEffect(() => {
     if (!uri) return;
@@ -63,26 +84,26 @@ export function SubscribeCard({ address }: { address: string | null }) {
         Subscribe with a shielded memo
       </h2>
       <p className="mb-6 text-sm leading-relaxed text-muted">
-        Pick any topic name. Send {`0.0001`} ZEC to the Turnstile address with the memo below. The
-        memo is the signup form — no email, no account, and nothing that identifies you.
+        Three steps: pick a topic, send one shielded memo, and open the page where your alerts
+        arrive. No email, no account, and nothing that identifies you.
       </p>
 
-      <label
-        htmlFor="topic"
-        className="mb-2 block cursor-pointer font-mono text-[10px] uppercase tracking-widest text-faint"
-      >
+      <StepLabel>Step 1 — Pick a topic</StepLabel>
+
+      <label htmlFor="topic" className="sr-only">
         Your topic
       </label>
-
       <input
         id="topic"
         value={topic}
         onChange={(event) => setTopic(event.target.value.replace(/[^A-Za-z0-9_-]/g, ""))}
         placeholder="pick-any-name"
-        className="mb-4 w-full cursor-text rounded-lg border border-border bg-canvas px-4 py-3 font-mono text-sm text-foreground placeholder:text-faint focus-visible:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        className="mb-6 w-full cursor-text rounded-lg border border-border bg-canvas px-4 py-3 font-mono text-sm text-foreground placeholder:text-faint focus-visible:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       />
 
-      <div className="mb-6 rounded-lg border border-border bg-canvas px-4 py-3">
+      <StepLabel>Step 2 — Send {SUBSCRIPTION_AMOUNT} ZEC with this memo</StepLabel>
+
+      <div className="mb-4 rounded-lg border border-border bg-canvas px-4 py-3">
         <div className="mb-1 font-mono text-[10px] uppercase tracking-widest text-faint">
           Memo
         </div>
@@ -90,7 +111,7 @@ export function SubscribeCard({ address }: { address: string | null }) {
       </div>
 
       {qr ? (
-        <div className="mb-6 flex flex-col items-center gap-4 rounded-xl border border-border bg-foreground p-6">
+        <div className="mb-4 flex flex-col items-center gap-4 rounded-xl border border-border bg-foreground p-6">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={qr} alt="ZIP-321 payment request" width={200} height={200} />
           <p className="text-center font-mono text-[10px] uppercase tracking-widest text-canvas/60">
@@ -98,17 +119,41 @@ export function SubscribeCard({ address }: { address: string | null }) {
           </p>
         </div>
       ) : (
-        <div className="mb-6 flex h-[200px] items-center justify-center rounded-xl border border-dashed border-border bg-canvas text-center font-mono text-xs text-faint">
+        <div className="mb-4 flex h-[200px] items-center justify-center rounded-xl border border-dashed border-border bg-canvas text-center font-mono text-xs text-faint">
           {topic ? "Topic must be letters, numbers, - or _" : "Enter a topic to generate the QR"}
         </div>
       )}
 
-      <Button onClick={copy} disabled={!uri} variant="secondary" className="w-full">
+      <Button onClick={copy} disabled={!uri} variant="secondary" className="mb-6 w-full">
         {copied ? "Copied" : "Copy payment URI"}
         <Icon icon={copied ? CheckmarkCircle02Icon : Copy01Icon} size={15} />
       </Button>
 
-      <div className="mt-6 flex flex-wrap gap-2 border-t border-border pt-5">
+      <StepLabel>Step 3 — Open where your alerts arrive</StepLabel>
+
+      <div className="mb-6 rounded-lg border border-accent/25 bg-accent/[0.04] px-4 py-3">
+        {valid ? (
+          <a
+            href={alertsUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-sm font-mono text-sm break-all text-accent underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            {alertsUrl}
+            <Icon icon={ArrowUpRight01Icon} size={14} />
+          </a>
+        ) : (
+          <code className="font-mono text-sm break-all text-faint">{alertsUrl}</code>
+        )}
+        <p className="mt-2 text-xs leading-relaxed text-muted">
+          Alerts are delivered over ntfy, an open push service — nothing arrives by email. Keep
+          this page open in a tab, or subscribe to the topic in the ntfy app. A{" "}
+          <span className="text-foreground">&ldquo;you are subscribed&rdquo;</span> push lands
+          there within a few minutes of your memo confirming — that is how you know it worked.
+        </p>
+      </div>
+
+      <div className="flex flex-wrap gap-2 border-t border-border pt-5">
         {SCHEDULE.map((when) => (
           <span
             key={when}

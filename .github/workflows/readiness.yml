@@ -1,0 +1,71 @@
+name: Readiness sources
+
+on:
+  schedule:
+    - cron: "23 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency: readiness-check
+
+jobs:
+  check:
+    name: Re-check every source
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Poll every readiness source
+        run: node scripts/check-readiness-sources.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Detect upstream movement
+        id: drift
+        run: |
+          if git diff --quiet -I'"checkedAt"' -- frontend/content/readiness-signals.json; then
+            echo "moved=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "moved=true" >> "$GITHUB_OUTPUT"
+            {
+              echo 'The automated source check found upstream movement. The board in'
+              echo '`frontend/content/readiness.json` may be stale — statuses stay'
+              echo 'human-judged; this issue only reports that a source changed.'
+              echo
+              echo '```diff'
+              git diff -I'"checkedAt"' -- frontend/content/readiness-signals.json
+              echo '```'
+            } > drift.md
+          fi
+
+      - name: Open or update the review issue
+        if: steps.drift.outputs.moved == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create readiness-drift --force \
+            --description "A readiness source moved upstream" --color 34D399
+          existing=$(gh issue list --label readiness-drift --state open \
+            --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body-file drift.md
+          else
+            gh issue create --title "Readiness board: a source moved upstream" \
+              --label readiness-drift --body-file drift.md
+          fi
+
+      - name: Commit the refreshed check state
+        run: |
+          git config user.name "turnstile-ci"
+          git config user.email "turnstile-ci@users.noreply.github.com"
+          git add frontend/content/readiness-signals.json
+          git commit -m "readiness: automated daily source check" || exit 0
+          git push

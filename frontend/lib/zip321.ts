@@ -1,6 +1,11 @@
 export const SUBSCRIPTION_PREFIX = "TURNSTILE:SUB:";
 export const SUBSCRIPTION_AMOUNT = "0.0001";
 export const MAX_TOPIC_LENGTH = 64;
+export const NTFY_BASE_URL = "https://ntfy.sh";
+
+export function ntfyTopicUrl(topic: string) {
+  return `${NTFY_BASE_URL}/${topic}`;
+}
 
 export function subscriptionMemo(topic: string) {
   return `${SUBSCRIPTION_PREFIX}${topic}`;

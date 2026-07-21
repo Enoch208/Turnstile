@@ -1,0 +1,79 @@
+{
+  "checkedAt": "2026-07-21T17:38:15.514Z",
+  "polled": 12,
+  "unpollable": 13,
+  "results": [
+    {
+      "name": "Gemini",
+      "source": "https://www.gemini.com/blog/privacy-gets-an-upgrade-gemini-adds-zcash-orchard-support",
+      "kind": "page",
+      "state": "reachable"
+    },
+    {
+      "name": "lightwalletd",
+      "source": "https://github.com/zcash/lightwalletd/pull/567",
+      "kind": "pull",
+      "state": "merged 2026-07-17"
+    },
+    {
+      "name": "Nighthawk",
+      "source": "https://apps.apple.com/us/app/nighthawk-wallet/id1524708337",
+      "kind": "page",
+      "state": "reachable"
+    },
+    {
+      "name": "Trezor",
+      "source": "https://trezor.io/coins/wallet/zcash",
+      "kind": "page",
+      "state": "reachable"
+    },
+    {
+      "name": "Turnstile (this site)",
+      "source": "https://github.com/zingolabs/zingolib/issues/2420",
+      "kind": "issue",
+      "state": "open"
+    },
+    {
+      "name": "Zaino",
+      "source": "https://github.com/zingolabs/zaino/releases/tag/0.6.0",
+      "kind": "release",
+      "state": "latest is still 0.6.0"
+    },
+    {
+      "name": "Zallet",
+      "source": "https://github.com/zcash/zallet/releases/tag/v0.1.0-beta.1",
+      "kind": "release",
+      "state": "latest is still v0.1.0-beta.1"
+    },
+    {
+      "name": "Zashi",
+      "source": "https://zodl.com/ironwood-a-new-shielded-pool-for-zcash/",
+      "kind": "page",
+      "state": "reachable"
+    },
+    {
+      "name": "zcashd",
+      "source": "https://zcash.github.io/zcash/user/release-support.html",
+      "kind": "page",
+      "state": "reachable"
+    },
+    {
+      "name": "Zebra",
+      "source": "https://github.com/ZcashFoundation/zebra/releases/tag/v6.2.0",
+      "kind": "release",
+      "state": "latest is still v6.2.0"
+    },
+    {
+      "name": "zec.rocks",
+      "source": "https://forum.zcashcommunity.com/t/ironwood-is-active-on-testnet-zec-rocks/56557",
+      "kind": "page",
+      "state": "reachable"
+    },
+    {
+      "name": "Zingo",
+      "source": "https://github.com/zingolabs/zingolib/issues/2420",
+      "kind": "issue",
+      "state": "open"
+    }
+  ]
+}

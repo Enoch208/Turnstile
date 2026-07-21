@@ -38,8 +38,8 @@ export default function AlertsPage() {
 
         <p className="mb-10 max-w-xl text-base leading-relaxed text-muted">
           Turnstile watches a mainnet address for encrypted memos. Send one naming your alert
-          topic, and you are subscribed — using the chain itself as the signup mechanism, with no
-          personal data anywhere in the loop.
+          topic, and you are subscribed — the chain is the signup form, and the open ntfy push
+          network is the delivery channel. No personal data anywhere in the loop.
         </p>
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-5">

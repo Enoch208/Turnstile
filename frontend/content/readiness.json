@@ -1,5 +1,5 @@
 {
-  "reviewedOn": "2026-07-15",
+  "reviewedOn": "2026-07-21",
   "entries": [
     {
       "name": "Turnstile (this site)",
@@ -21,9 +21,9 @@
       "name": "Zebra",
       "kind": "service",
       "status": "ready",
-      "note": "Zebra v6.0.0 is the first stable release that activates Ironwood on mainnet at block 3,428,143. All node operators must upgrade before activation.",
-      "source": "https://github.com/ZcashFoundation/zebra/releases/tag/v6.0.0",
-      "verifiedOn": "2026-07-10"
+      "note": "Zebra activates Ironwood on mainnet at block 3,428,143 from v6.0.0 onward; the current release is v6.2.0. All node operators must upgrade before activation.",
+      "source": "https://github.com/ZcashFoundation/zebra/releases/tag/v6.2.0",
+      "verifiedOn": "2026-07-21"
     },
     {
       "name": "Zaino",
@@ -36,10 +36,10 @@
     {
       "name": "lightwalletd",
       "kind": "service",
-      "status": "at-risk",
-      "note": "The latest upstream release (v0.4.19, 30 March) predates Ironwood, and the only Ironwood work is an unmerged draft pull request opened on 12 July. Most light wallets read the chain through lightwalletd.",
+      "status": "in-progress",
+      "note": "Ironwood support was merged to main on 17 July, but the latest tagged release (v0.4.19, 30 March) still predates it — server operators must build from main until a release ships. Most light wallets read the chain through lightwalletd.",
       "source": "https://github.com/zcash/lightwalletd/pull/567",
-      "verifiedOn": "2026-07-12"
+      "verifiedOn": "2026-07-21"
     },
     {
       "name": "zec.rocks",

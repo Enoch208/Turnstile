@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { isValidTopic, subscriptionMemo, zip321Uri } from "@/lib/zip321";
+import { isValidTopic, ntfyTopicUrl, subscriptionMemo, zip321Uri } from "@/lib/zip321";
 
 const ADDRESS = "u1zagcmz46wv0l22l34erq0zlslpj59h666g55q6a2tjnqjmrtfe5sqmfdpewn5xrqz728";
 
@@ -52,6 +52,12 @@ describe("isValidTopic — must match the Rust parser's accepted set", () => {
   it("rejects an overlong topic, as the Rust side does at 64", () => {
     expect(isValidTopic("a".repeat(64))).toBe(true);
     expect(isValidTopic("a".repeat(65))).toBe(false);
+  });
+});
+
+describe("ntfyTopicUrl — must match where the Rust notifier posts", () => {
+  it("joins the ntfy base and the topic exactly as scanner/alerts does", () => {
+    expect(ntfyTopicUrl("ama-zec-alerts")).toBe("https://ntfy.sh/ama-zec-alerts");
   });
 });
 

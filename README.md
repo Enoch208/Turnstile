@@ -174,7 +174,7 @@ INFO turnstile_scanner::alerts: new subscription topic=turnstile-demo-7f3a heigh
     → ntfy: "Turnstile — you are subscribed"
 ```
 
-No PII of any kind changed hands. **The chain was the signup form.** And the watcher is given a **viewing key, not a spending key** — it only needs to *read* memos, so the server *cannot spend the dust it is sent*, by construction rather than by policy. The same principle as the product, applied to our own infrastructure. (You can verify this transaction yourself: [3xpl.com/zcash/transaction/ff53f470…](https://3xpl.com/zcash/transaction/ff53f47083790f046be7977e6c6c2337a430d3de6b5d34eba32c2c0ed7ff382d).)
+No PII of any kind changed hands. **The chain was the signup form.** And the watcher is given a **viewing key, not a spending key** — it only needs to *read* memos, so the server *cannot spend the dust it is sent*, by construction rather than by policy. The same principle as the product, applied to our own infrastructure. Verify the transaction yourself — txid `ff53f47083790f046be7977e6c6c2337a430d3de6b5d34eba32c2c0ed7ff382d` on any explorer, e.g. [Zcash Explorer](https://mainnet.zcashexplorer.app/transactions/ff53f47083790f046be7977e6c6c2337a430d3de6b5d34eba32c2c0ed7ff382d).
 
 > **Honest scope:** today the watcher delivers the one-shot subscription confirmation shown above. The scheduled T-48h / T-1h / at-activation pushes are on the [roadmap](#roadmap), not yet implemented.
 
