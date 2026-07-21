@@ -365,6 +365,7 @@ cd frontend && npm install && npm run dev   # :3000
 
 # CLI — scans locally, sends nothing anywhere
 cargo run -p turnstile-check -- --ufvk uview1... --birthday 3411399
+# add --bench for sync timing and block rate; with --json it lands in a "benchmark" field
 
 # Tests
 cargo test -p turnstile-core                       # pure logic, ~1 min
