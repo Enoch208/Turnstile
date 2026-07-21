@@ -25,6 +25,16 @@ impl AlertStage {
         }
     }
 
+    pub fn window(self) -> std::ops::Range<u64> {
+        let start = self.trigger_height();
+        let next_trigger = match self {
+            Self::FortyEightHours => Self::OneHour.trigger_height(),
+            Self::OneHour => Self::Activation.trigger_height(),
+            Self::Activation => u64::MAX,
+        };
+        start..(start + FIRE_WINDOW_BLOCKS).min(next_trigger)
+    }
+
     pub fn title(self) -> &'static str {
         match self {
             Self::FortyEightHours => "Turnstile — 48 hours to Ironwood",
@@ -69,10 +79,7 @@ impl AlertSchedule {
         let mut ready = Vec::new();
 
         for stage in AlertStage::ALL {
-            let trigger = stage.trigger_height();
-            let in_window = tip >= trigger && tip < trigger + FIRE_WINDOW_BLOCKS;
-
-            if in_window && self.fired.insert(stage) {
+            if stage.window().contains(&tip) && self.fired.insert(stage) {
                 ready.push(stage);
             }
         }
@@ -121,11 +128,22 @@ mod tests {
     #[test]
     fn the_last_block_of_the_window_still_fires() {
         let mut schedule = AlertSchedule::new();
-        let trigger = AlertStage::OneHour.trigger_height();
+        let trigger = AlertStage::FortyEightHours.trigger_height();
 
         assert_eq!(
             schedule.due(trigger + FIRE_WINDOW_BLOCKS - 1),
-            vec![AlertStage::OneHour]
+            vec![AlertStage::FortyEightHours]
+        );
+    }
+
+    #[test]
+    fn a_stage_window_never_reaches_past_the_next_trigger() {
+        let mut schedule = AlertSchedule::new();
+
+        assert_eq!(
+            schedule.due(IRONWOOD_ACTIVATION_HEIGHT),
+            vec![AlertStage::Activation],
+            "a restart at activation must never send a stale one-hour countdown"
         );
     }
 
@@ -160,7 +178,10 @@ mod tests {
         for stage in AlertStage::ALL {
             let body = stage.body("https://example.org/");
             assert!(body.contains(&IRONWOOD_ACTIVATION_HEIGHT.to_string()));
-            assert!(body.contains("https://example.org/check") || body.contains("https://example.org/guides"));
+            assert!(
+                body.contains("https://example.org/check")
+                    || body.contains("https://example.org/guides")
+            );
             assert!(!body.contains("example.org//"));
         }
     }
