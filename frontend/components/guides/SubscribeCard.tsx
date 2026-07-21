@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import QRCode from "qrcode";
 import { useEffect, useState } from "react";
 
@@ -165,6 +166,19 @@ export function SubscribeCard({ address }: { address: string | null }) {
       </div>
 
       <p className="mt-5 text-xs leading-relaxed text-faint">
+        These pushes are the shared countdown — the same three alerts for everyone. They know
+        nothing about your wallet, because the memo tells us a topic name and nothing else. To
+        see whether your own ZEC is exposed,{" "}
+        <Link
+          href="/check"
+          className="cursor-pointer text-muted underline underline-offset-4 transition-colors duration-200 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        >
+          run the wallet check
+        </Link>{" "}
+        — that is a separate step and needs your viewing key.
+      </p>
+
+      <p className="mt-3 text-xs leading-relaxed text-faint">
         Anyone who guesses your topic can read the same alerts, so pick something unguessable if
         that matters to you. Turnstile stores the topic and nothing else.
       </p>
