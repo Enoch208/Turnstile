@@ -1,6 +1,6 @@
 {
-  "checkedAt": "2026-07-21T17:50:51.598Z",
-  "polled": 12,
+  "checkedAt": "2026-07-22T09:04:57.733Z",
+  "polled": 13,
   "unpollable": 13,
   "results": [
     {
@@ -74,6 +74,12 @@
       "source": "https://github.com/zingolabs/zingolib/issues/2420",
       "kind": "issue",
       "state": "open"
+    },
+    {
+      "name": "Zkool",
+      "source": "https://github.com/hhanh00/zkool2/releases/tag/zkool-v6.24.0",
+      "kind": "release",
+      "state": "latest is still zkool-v6.24.0"
     }
   ]
 }
