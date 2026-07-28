@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-07-27T10:13:15.741Z",
+  "checkedAt": "2026-07-28T09:12:11.481Z",
   "polled": 13,
   "unpollable": 13,
   "results": [
@@ -19,7 +19,7 @@
       "name": "Nighthawk",
       "source": "https://apps.apple.com/us/app/nighthawk-wallet/id1524708337",
       "kind": "page",
-      "state": "http 429"
+      "state": "reachable"
     },
     {
       "name": "Trezor",
@@ -61,7 +61,7 @@
       "name": "Zebra",
       "source": "https://github.com/ZcashFoundation/zebra/releases/tag/v6.2.0",
       "kind": "release",
-      "state": "superseded by v6.2.2"
+      "state": "superseded by v6.2.3"
     },
     {
       "name": "zec.rocks",
@@ -79,7 +79,7 @@
       "name": "Zkool",
       "source": "https://github.com/hhanh00/zkool2/releases/tag/zkool-v6.24.0",
       "kind": "release",
-      "state": "latest is still zkool-v6.24.0"
+      "state": "superseded by zkool-v6.25.0"
     }
   ]
 }
