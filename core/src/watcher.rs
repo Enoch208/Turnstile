@@ -72,10 +72,11 @@ impl MemoWatcher {
             .await
             .map_err(|_| ScanError::InvalidViewingKey)?;
 
-        client
-            .sync_and_await()
-            .await
-            .map_err(|_| ScanError::NetworkUnavailable)?;
+        if let Err(error) = client.sync_and_await().await {
+            tracing::warn!(%error, "watcher sync failed");
+            let tip = crate::tip::chain_tip(&self.indexer_uri).await.ok();
+            return Err(crate::scan::sync_failure_before_ironwood_support(tip));
+        }
 
         let transfers = client
             .messages_containing(Some(SUBSCRIPTION_PREFIX))

@@ -40,20 +40,17 @@ impl ScanBackend {
             .map(|(height, _)| height);
         let birthday = effective_birthday(request.birthday, tip)?;
 
-        let mut last = ScanError::NetworkUnavailable;
-
         for endpoint in &self.endpoints {
             match self.scan_via(endpoint, request, birthday).await {
                 Ok(result) => return Ok(result),
                 Err(ScanError::NetworkUnavailable) => {
-                    tracing::warn!(indexer = %endpoint, "indexer unreachable, trying the next");
-                    last = ScanError::NetworkUnavailable;
+                    tracing::warn!(indexer = %endpoint, "scan failed via this indexer, trying the next");
                 }
                 Err(error) => return Err(error),
             }
         }
 
-        Err(last)
+        Err(crate::scan::sync_failure_before_ironwood_support(tip))
     }
 
     async fn scan_via(
@@ -100,10 +97,10 @@ async fn run(config: ClientConfig) -> Result<ScanResult, ScanError> {
         .await
         .map_err(|_| ScanError::InvalidViewingKey)?;
 
-    let sync = client
-        .sync_and_await()
-        .await
-        .map_err(|_| ScanError::NetworkUnavailable)?;
+    let sync = client.sync_and_await().await.map_err(|error| {
+        tracing::warn!(%error, "wallet sync failed");
+        ScanError::NetworkUnavailable
+    })?;
 
     let balance = client
         .account_balance(zip32::AccountId::ZERO)

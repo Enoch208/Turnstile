@@ -1,13 +1,13 @@
 {
-  "reviewedOn": "2026-07-21",
+  "reviewedOn": "2026-08-02",
   "entries": [
     {
       "name": "Turnstile (this site)",
       "kind": "service",
-      "status": "in-progress",
-      "note": "Held to the same standard as every other row. Scanning runs on zingolib, whose current pin of zcash_protocol (0.9.0) predates NU6.3; the newest zcash_protocol release ships the Ironwood consensus rules and zingolib is integrating them. Everything here is verified against mainnet pre-activation; post-activation scanning depends on that upstream work landing.",
+      "status": "at-risk",
+      "note": "Held to the same standard as every other row — and the risk this row warned about landed. The pinned zingolib predates NU6.3, so wallet scans fail for blocks past activation (3,428,143, 28 July). Upstream merged Ironwood support on 24 July and Turnstile is integrating it; scans are paused until then. The countdown, guides, alerts, and this board are unaffected.",
       "source": "https://github.com/zingolabs/zingolib/issues/2420",
-      "verifiedOn": "2026-07-15"
+      "verifiedOn": "2026-08-02"
     },
     {
       "name": "zcashd",

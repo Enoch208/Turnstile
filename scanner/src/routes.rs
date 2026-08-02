@@ -99,6 +99,7 @@ impl IntoResponse for ScanFailure {
             | ScanError::BirthdayAboveTip(_) => StatusCode::BAD_REQUEST,
             ScanError::UnknownJob => StatusCode::NOT_FOUND,
             ScanError::NetworkUnavailable
+            | ScanError::PostIronwoodUnsupported
             | ScanError::EphemeralStorageUnavailable
             | ScanError::BackendUnavailable => StatusCode::SERVICE_UNAVAILABLE,
         };

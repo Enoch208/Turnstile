@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { CheckPanel } from "@/components/check/CheckPanel";
+import { PostIronwoodNotice } from "@/components/check/PostIronwoodNotice";
 import { AppFrame } from "@/components/layout/AppFrame";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
@@ -29,6 +30,8 @@ export default function CheckPage() {
           whether the Ironwood activation asks anything of you. It cannot spend, and it keeps
           nothing.
         </p>
+
+        <PostIronwoodNotice />
 
         <CheckPanel />
       </section>
