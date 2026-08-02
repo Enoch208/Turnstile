@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-08-01T08:37:12.067Z",
+  "checkedAt": "2026-08-02T08:41:07.273Z",
   "polled": 13,
   "unpollable": 13,
   "results": [
@@ -29,8 +29,8 @@
     },
     {
       "name": "Turnstile (this site)",
-      "source": "https://github.com/zingolabs/zingolib/issues/2420",
-      "kind": "issue",
+      "source": "https://github.com/zingolabs/zingolib/pull/2603",
+      "kind": "pull",
       "state": "open"
     },
     {
@@ -79,7 +79,7 @@
       "name": "Zkool",
       "source": "https://github.com/hhanh00/zkool2/releases/tag/zkool-v6.24.0",
       "kind": "release",
-      "state": "superseded by zkool-v6.26.0"
+      "state": "superseded by zkool-v6.26.1"
     }
   ]
 }
