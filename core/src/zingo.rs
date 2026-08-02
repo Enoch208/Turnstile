@@ -94,9 +94,10 @@ impl ScanBackend {
 }
 
 async fn run(config: ClientConfig) -> Result<ScanResult, ScanError> {
-    let mut client = LightClient::new(config, true)
-        .await
-        .map_err(|_| ScanError::InvalidViewingKey)?;
+    let mut client = LightClient::new(config, true).await.map_err(|error| {
+        tracing::warn!(%error, "light client creation failed");
+        ScanError::InvalidViewingKey
+    })?;
 
     let sync = client.sync_and_await().await.map_err(|error| {
         tracing::warn!(%error, "wallet sync failed");

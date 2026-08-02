@@ -8,7 +8,7 @@ use tokio::sync::{Mutex, Semaphore};
 use turnstile_core::{ScanError, ScanRequest, ScanResult};
 
 const JOB_TTL: Duration = Duration::from_secs(30 * 60);
-const MAX_CONCURRENT_SCANS: usize = 4;
+const MAX_CONCURRENT_SCANS: usize = 2;
 
 #[derive(Clone, Serialize)]
 #[serde(tag = "status", rename_all = "camelCase")]
