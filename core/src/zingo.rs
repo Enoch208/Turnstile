@@ -50,7 +50,7 @@ impl ScanBackend {
             }
         }
 
-        Err(crate::scan::sync_failure_before_ironwood_support(tip))
+        Err(ScanError::NetworkUnavailable)
     }
 
     async fn scan_via(
@@ -82,7 +82,8 @@ impl ScanBackend {
                 birthday,
                 wallet_settings: settings,
             })
-            .build();
+            .build()
+            .map_err(|_| ScanError::EphemeralStorageUnavailable)?;
 
         let outcome = run(config).await;
 

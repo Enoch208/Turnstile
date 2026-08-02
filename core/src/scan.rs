@@ -49,11 +49,6 @@ pub enum ScanError {
     BirthdayAboveTip(u64),
     #[error("could not reach the Zcash network")]
     NetworkUnavailable,
-    #[error(
-        "this build cannot scan blocks past the Ironwood activation yet — zingolib merged \
-         Ironwood support upstream and Turnstile is integrating it. Your funds are unaffected."
-    )]
-    PostIronwoodUnsupported,
     #[error("could not create the ephemeral wallet directory")]
     EphemeralStorageUnavailable,
     #[error("the zingolib scan backend is not compiled into this build")]
@@ -85,15 +80,6 @@ pub fn validate(request: &ScanRequest) -> Result<(), ScanError> {
     }
 
     Ok(())
-}
-
-pub fn sync_failure_before_ironwood_support(chain_tip: Option<u64>) -> ScanError {
-    match chain_tip {
-        Some(tip) if tip >= crate::chain::IRONWOOD_ACTIVATION_HEIGHT => {
-            ScanError::PostIronwoodUnsupported
-        }
-        _ => ScanError::NetworkUnavailable,
-    }
 }
 
 pub fn effective_birthday(requested: u64, chain_tip: Option<u64>) -> Result<u32, ScanError> {
@@ -192,35 +178,6 @@ mod tests {
             ORCHARD_ACTIVATION_HEIGHT as u32
         );
         assert_eq!(effective_birthday(500_000, None).unwrap(), 500_000);
-    }
-
-    #[test]
-    fn a_sync_failure_with_a_reachable_post_ironwood_tip_is_reported_truthfully() {
-        use crate::chain::IRONWOOD_ACTIVATION_HEIGHT;
-
-        // We fetched the tip, so "could not reach the network" would be a lie.
-        assert!(matches!(
-            sync_failure_before_ironwood_support(Some(IRONWOOD_ACTIVATION_HEIGHT)),
-            ScanError::PostIronwoodUnsupported
-        ));
-        assert!(matches!(
-            sync_failure_before_ironwood_support(Some(IRONWOOD_ACTIVATION_HEIGHT + 5_000)),
-            ScanError::PostIronwoodUnsupported
-        ));
-    }
-
-    #[test]
-    fn a_sync_failure_before_activation_or_with_no_tip_stays_a_network_error() {
-        use crate::chain::IRONWOOD_ACTIVATION_HEIGHT;
-
-        assert!(matches!(
-            sync_failure_before_ironwood_support(Some(IRONWOOD_ACTIVATION_HEIGHT - 1)),
-            ScanError::NetworkUnavailable
-        ));
-        assert!(matches!(
-            sync_failure_before_ironwood_support(None),
-            ScanError::NetworkUnavailable
-        ));
     }
 
     #[test]

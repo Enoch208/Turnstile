@@ -5,8 +5,6 @@ export const ACTIVATION_WINDOW_BLOCKS = 20;
 
 export const ZATOSHI_PER_ZEC = 100_000_000;
 
-export const SCANNING_PAST_IRONWOOD_WORKS = false;
-
 export const ZECHUB_WIKI_URL = "https://zechub.wiki";
 export const ZCASH_UPGRADE_URL = "https://z.cash/upgrade/";
 

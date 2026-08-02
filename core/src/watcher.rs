@@ -66,7 +66,8 @@ impl MemoWatcher {
                     min_confirmations: NonZeroU32::new(1).expect("1 is non-zero"),
                 },
             })
-            .build();
+            .build()
+            .map_err(|_| ScanError::EphemeralStorageUnavailable)?;
 
         let mut client = LightClient::new(config, true)
             .await
@@ -74,8 +75,7 @@ impl MemoWatcher {
 
         if let Err(error) = client.sync_and_await().await {
             tracing::warn!(%error, "watcher sync failed");
-            let tip = crate::tip::chain_tip(&self.indexer_uri).await.ok();
-            return Err(crate::scan::sync_failure_before_ironwood_support(tip));
+            return Err(ScanError::NetworkUnavailable);
         }
 
         let transfers = client
