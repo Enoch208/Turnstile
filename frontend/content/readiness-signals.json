@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-08-02T08:41:07.273Z",
+  "checkedAt": "2026-08-03T10:09:57.003Z",
   "polled": 13,
   "unpollable": 13,
   "results": [
@@ -31,7 +31,7 @@
       "name": "Turnstile (this site)",
       "source": "https://github.com/zingolabs/zingolib/pull/2603",
       "kind": "pull",
-      "state": "open"
+      "state": "merged 2026-08-02"
     },
     {
       "name": "Zaino",
