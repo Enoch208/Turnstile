@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-08-10T08:10:24.699Z",
+  "checkedAt": "2026-08-11T07:42:54.893Z",
   "polled": 13,
   "unpollable": 13,
   "results": [
@@ -61,7 +61,7 @@
       "name": "Zebra",
       "source": "https://github.com/ZcashFoundation/zebra/releases/tag/v6.2.0",
       "kind": "release",
-      "state": "superseded by v6.2.3"
+      "state": "superseded by v6.3.0"
     },
     {
       "name": "zec.rocks",
