@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-08-18T07:10:28.273Z",
+  "checkedAt": "2026-08-19T07:11:05.900Z",
   "polled": 13,
   "unpollable": 13,
   "results": [
@@ -37,7 +37,7 @@
       "name": "Zaino",
       "source": "https://github.com/zingolabs/zaino/releases/tag/0.6.0",
       "kind": "release",
-      "state": "superseded by 0.7.0"
+      "state": "superseded by 0.8.0"
     },
     {
       "name": "Zallet",
